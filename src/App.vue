@@ -1,16 +1,15 @@
 <template>
-  <Login/>
+  <div id="app">
+    <!-- This is where the matched route component will be rendered -->
+    <router-view></router-view>
+  </div>
 </template>
 
-<script>
-import Login from './components/Login.vue'
 
+<script>
 export default {
-  name: 'App',
-  components: {
-    Login
-  }
-}
+  name: 'App'
+};
 </script>
 
 <style>

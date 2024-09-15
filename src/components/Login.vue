@@ -54,6 +54,12 @@ export default {
                     
                     // Handle successful response
                     console.log('Login successful:', response.data);
+                    console.log('Login successful:', response.data.user.isAdmin);
+                    if(response.data.user.isAdmin){
+                        this.$router.push('/dashboard-admin');
+                    }else{
+                        this.$router.push('/dashboard-user');
+                    }
 
                 } catch (error) {
                     // Handle error response
