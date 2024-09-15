@@ -1,25 +1,27 @@
 <template>
-  <h2> User Das <b-badge>New</b-badge></h2>
+  <div>
+    <h1>Ultimas ventas</h1>
+    <TableComponent :headers="tableHeaders" :rows="tableRows" />
+  </div>
 </template>
-  
-    
-  <script>
-  export default {
-    data() {
-      return {
-        items: [
-          { age: 40, first_name: 'Dickerson', last_name: 'Macdonald' },
-          { age: 21, first_name: 'Larsen', last_name: 'Shaw' },
-          { age: 89, first_name: 'Geneva', last_name: 'Wilson' },
-          { age: 38, first_name: 'Jami', last_name: 'Carney' }
-        ]
-      }
-    }
+
+<script>
+import TableComponent from './table.vue';
+
+export default {
+  components: {
+    TableComponent
+  },
+  data() {
+    return {
+      tableHeaders: ['ID', 'Name', 'Email', 'Role'],
+      tableRows: [
+        [1, 'John Doe', 'john@example.com', 'Admin'],
+        [2, 'Jane Smith', 'jane@example.com', 'User'],
+        [3, 'Sam Green', 'sam@example.com', 'Editor'],
+        [4, 'Anna Blue', 'anna@example.com', 'User']
+      ]
+    };
   }
+};
 </script>
-    <style >
-    .mrgin {
-      margin: 20px;
-    }
-    
-</style>
