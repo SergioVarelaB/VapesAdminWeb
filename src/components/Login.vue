@@ -10,7 +10,7 @@
             <div class="form-group">
                 <label for="password">Password:</label>
                 <div class="password-wrapper">
-                    <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" required
+                    <input :type="showPasswor ? 'text' : 'password'" id="password" v-model="password" required
                         minlength="6" class="form-control" />
                     <button type="button" @click="togglePassword" class="toggle-password-btn">
                         {{ showPassword ? 'Hide' : 'Show' }}
