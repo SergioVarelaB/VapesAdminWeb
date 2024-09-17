@@ -10,7 +10,7 @@
             <div class="form-group">
                 <label for="password">Password:</label>
                 <div class="password-wrapper">
-                    <input :type="showPasswor ? 'text' : 'password'" id="password" v-model="password" required
+                    <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" required
                         minlength="6" class="form-control" />
                     <button type="button" @click="togglePassword" class="toggle-password-btn">
                         {{ showPassword ? 'Hide' : 'Show' }}
@@ -42,7 +42,7 @@ export default {
         async submitForm() {
             if (this.validateForm()) {
                 try {
-                    const response = await axios.post('http://localhost:4000/user/login', {
+                    const response = await axios.post('https://9349-2806-2f0-34e0-a285-c0a9-1b01-19c6-59b3.ngrok-free.app/user/login', {
                         email: this.email,
                         password: this.password
                     }, {

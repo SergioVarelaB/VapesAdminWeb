@@ -43,7 +43,7 @@ export default {
       } catch (error) {
         // Handle error response
         if (error.response) {
-          this.errorMessage = error.response.data.message || 'Login failed';
+          this.errorMessage = error.response.data.message || 'Fallido';
         } else {
           this.errorMessage = 'An error occurred: ' + error.message;
         }

@@ -1,7 +1,6 @@
 <template>
   <div id="app">
-    <!-- This is where the matched route component will be rendered -->
-    <router-view></router-view>
+    <H1>Hello World</H1>
   </div>
 </template>
 
