@@ -1,4 +1,4 @@
-# vapes_adminweb
+# VapesAdminWeb
 
 ## Project setup
 ```
