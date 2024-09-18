@@ -42,7 +42,7 @@ export default {
         async submitForm() {
             if (this.validateForm()) {
                 try {
-                    const response = await axios.post('https://9349-2806-2f0-34e0-a285-c0a9-1b01-19c6-59b3.ngrok-free.app/user/login', {
+                    const response = await axios.post('https://284d-2806-2f0-34e0-a285-bdae-9098-b4ae-3c33.ngrok-free.app/user/login', {
                         email: this.email,
                         password: this.password
                     }, {
