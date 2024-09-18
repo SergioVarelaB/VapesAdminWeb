@@ -31,7 +31,7 @@ export default {
   methods: {
     async getAllSales() {
       try {
-        const response = await axios.post('https://284d-2806-2f0-34e0-a285-bdae-9098-b4ae-3c33.ngrok-free.app/orders/get_sales', {} , {
+        const response = await axios.post('https://vapesadmin.onrender.com/orders/get_sales', {} , {
           headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'  // Adding CORS header
