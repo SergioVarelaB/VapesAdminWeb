@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import getUsers from '../Api/Users/usersApi.js';
+import { login } from '../Api/Users/usersApi.js';
 
 export default {
     name: 'loginVue',
@@ -46,7 +46,7 @@ export default {
                         email: this.email,
                         password: this.password
                     }
-                    const response = await getUsers(req);
+                    const response = await login(req);
                     
                     if(response.user.isAdmin){
                         this.$router.push('/dashboard-admin');
