@@ -11,9 +11,8 @@
 
 <script>
 import TableComponent from './table.vue';
-import axios from 'axios';
-// import { getUsers } from '../Api/Users/usersApi'
 import { getUsers } from '../Api/Users/usersApi.js';
+import { getOrders } from '../Api/Dashboard/dashboard.js';
 
 
 export default {
@@ -35,12 +34,9 @@ export default {
   methods: {
     async getUsersVue()  {
       try {
-
         const response = await getUsers();
         console.log(response.data.data)
         this.tableRowsUsers = response.data.data;
-
-
       }catch (error) {
         // Handle error response
         if (error.response) {
@@ -52,15 +48,9 @@ export default {
     },
     async getAllSales() {
       try {
-        const response = await axios.post('https://vapesadmin.onrender.com/orders/get_sales', {} , {
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'  // Adding CORS header
-          }
-        });
+        const response = await getOrders();
         console.log(response.data.sales)
         this.tableRowsSales = response.data.sales;
-
       } catch (error) {
         // Handle error response
         if (error.response) {
