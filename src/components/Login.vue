@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { login } from '../Api/Users/usersApi.js';
 
 export default {
     name: 'loginVue',
@@ -42,20 +42,13 @@ export default {
         async submitForm() {
             if (this.validateForm()) {
                 try {
-                    const response = await axios.post('https://vapesadmin.onrender.com/user/login', {
+                    const req =  {
                         email: this.email,
                         password: this.password
-                    }, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': '*'  // Adding CORS header
-                        }
-                    });
+                    }
+                    const response = await login(req);
                     
-                    // Handle successful response
-                    console.log('Login successful:', response.data);
-                    console.log('Login successful:', response.data.user.isAdmin);
-                    if(response.data.user.isAdmin){
+                    if(response.user.isAdmin){
                         this.$router.push('/dashboard-admin');
                     }else{
                         this.$router.push('/dashboard-user');

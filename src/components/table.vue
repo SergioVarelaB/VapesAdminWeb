@@ -70,17 +70,17 @@ export default {
 
 .custom-table th,
 .custom-table td {
-    border: 1px solid #ddd;
+    border: 1px solid #a0a0a0;
     padding: 8px;
 }
 
 .custom-table th {
-    background-color: #f2f2f2;
+    background-color: #7cb3ea;
     text-align: left;
 }
 
 .custom-table tr:hover {
-    background-color: #f1f1f1;
+    background-color: #b5def9;
 }
 
 .login-container {

@@ -1,15 +1,26 @@
 import axiosInstance from '../axios.js';
 
-const loginApi = {
-  async getUsers() {
+const src = 'user'
+
+async function login(body) {
     try {
-      const response = await axiosInstance.get('/users');
+      const response = await axiosInstance.post(`${src}/login`, body);
       return response.data;
     } catch (error) {
       console.error('Error fetching users:', error);
       throw error;
     }
-  },
-};
+}
 
-export default usersApi;
+
+async function getUsers() {
+  try {
+    const response = await axiosInstance.post(`${src}/getUsers`, {});
+    return response;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw error;
+  }
+}
+
+export { getUsers, login }
