@@ -16,6 +16,7 @@
 
 <script>
 import { deleteUser } from '../../Api/Users/usersApi.js';
+import { toast } from 'vue3-toastify';
 
 export default {
     props: {
@@ -35,21 +36,14 @@ export default {
     },
     methods: {
         async submit() {
-            console.log(this.idUser)
             try {
                 const response = await deleteUser({ id: this.idUser });
-                console.log(response)
                 if (response.status === 200) {
-                    //Show toast
-                    console.log("Toast")
+                    toast.success("Usuario eliminado correctamente");
                     this.closeModal()
-                }else{
-                    console.log(response)
-                    this.errorMessage = response || 'Fallido';   
                 }
             }catch(error){
-                console.log(error.message)
-                this.errorMessage = 'Fallido';
+                toast.error("No fue posible eliminar este registro");
             }
         },
         closeModal() {

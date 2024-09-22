@@ -24,6 +24,7 @@ import { getUsers } from '../Api/Users/usersApi.js';
 import { getOrders } from '../Api/Dashboard/dashboard.js';
 import Modal from './Utils/ModalNewUser.vue'; // Adjust the path based on your folder structure
 import ModalDeleteUsers from './Utils/ModalDeleteUsers.vue';
+import { toast } from 'vue3-toastify';
 
 
 export default {
@@ -53,6 +54,7 @@ export default {
       this.idUserDelete = row_id;
     },
     closeDeleteModal(){
+      this.getUsersVue();
       this.isModalDeleteUsersOpen = false;
     },
     openModal() {
@@ -64,6 +66,7 @@ export default {
       this.isModalOpen = false;
     },
     userCreated(){
+      toast.success('This is a success message!');
       this.getUsersVue();
     },
     salesCreated(){
@@ -71,16 +74,14 @@ export default {
     },
     deleteUser(row_id){
       this.openDeleteModal(row_id);
-      console.log(row_id)
-      
     },
     async getUsersVue() {
       try {
         const response = await getUsers();
-        console.log(response.data.data)
         this.tableRowsUsers = response.data.data;
       } catch (error) {
         // Handle error response
+        toast.error(error.response);
         if (error.response) {
           this.errorMessage = error.response.data.message || 'Fallido';
         } else {
@@ -91,7 +92,6 @@ export default {
     async getAllSales() {
       try {
         const response = await getOrders();
-        console.log(response.data.sales)
         this.tableRowsSales = response.data.sales;
       } catch (error) {
         // Handle error response

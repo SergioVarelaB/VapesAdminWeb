@@ -58,7 +58,6 @@ export default {
             }
         },
         modalDelete(index){
-            console.log(this.rows[index]._id);
             this.$emit('update-data', this.rows[index]._id);
         }
     }

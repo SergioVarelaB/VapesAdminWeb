@@ -42,7 +42,7 @@
 
 <script>
 import { createUser } from '../../Api/Users/usersApi.js';
-
+import { toast } from 'vue3-toastify';
 export default {
   props: {
     isOpen: {
@@ -71,15 +71,17 @@ export default {
             name: this.name,
             phone: this.phone
           }
-          const response = createUser(user);
-          console.log(response)
+          const response = await createUser(user);
           if(response.status === 201){
             //Show toast
-            console.log("Toast")
+            toast.success("Usuario creado correctamente");
+            this.closeModal();
+          }else{
+            this.errorMessage = response.message;
           }
-          this.closeModal();
         } catch (error) {
           // Handle error response
+          toast.error("Ha ocurrido un error al crear el usuario");
           if (error.response) {
             this.errorMessage = error.response.data.message || 'Fallido';
           } else {
