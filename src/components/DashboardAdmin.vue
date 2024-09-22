@@ -8,26 +8,29 @@
       <!-- Button to open the modal, aligned to the right -->
       <button @click="openModal" class="open-button"> Crear Nuevo Usuario + </button>
     </div>
-    <TableComponent :headers="tableHeadersUsers" :rows="tableRowsUsers" />
+    <TableComponent  @update-data="deleteUser" :headers="tableHeadersUsers" :rows="tableRowsUsers" />
     <br><br>
     <!-- Modal component -->
     <Modal :isOpen="isModalOpen" @close="closeModal" />
+    <ModalDeleteUsers :idUser="idUserDelete" :isOpen="isModalDeleteUsersOpen" @close="closeDeleteModal"/>
     <h1 class="header-title" >Lista de ventas</h1>
     <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
   </div>
 </template>
 
 <script>
-import TableComponent from './table.vue';
+import TableComponent from './Utils/table.vue';
 import { getUsers } from '../Api/Users/usersApi.js';
 import { getOrders } from '../Api/Dashboard/dashboard.js';
-import Modal from './ModalAdd.vue'; // Adjust the path based on your folder structure
+import Modal from './Utils/ModalNewUser.vue'; // Adjust the path based on your folder structure
+import ModalDeleteUsers from './Utils/ModalDeleteUsers.vue';
 
 
 export default {
   components: {
     TableComponent,
-    Modal
+    Modal,
+    ModalDeleteUsers
   },
   data() {
     return {
@@ -35,7 +38,9 @@ export default {
       tableRowsUsers: [],
       tableHeadersSales: ['ID', 'Repartidor', 'Cantidad', 'Cliente', 'Fecha'],
       tableRowsSales: [],
-      isModalOpen: false
+      isModalOpen: false,
+      isModalDeleteUsersOpen: false,
+      idUserDelete: ""
     };
   },
   mounted() {
@@ -43,11 +48,31 @@ export default {
     this.getUsersVue();
   },
   methods: {
+    openDeleteModal(row_id){
+      this.isModalDeleteUsersOpen = true;
+      this.idUserDelete = row_id;
+    },
+    closeDeleteModal(){
+      this.isModalDeleteUsersOpen = false;
+    },
     openModal() {
       this.isModalOpen = true;
     },
     closeModal() {
+      this.getAllSales();
+      this.getUsersVue();
       this.isModalOpen = false;
+    },
+    userCreated(){
+      this.getUsersVue();
+    },
+    salesCreated(){
+      this.getAllSales();
+    },
+    deleteUser(row_id){
+      this.openDeleteModal(row_id);
+      console.log(row_id)
+      
     },
     async getUsersVue() {
       try {
