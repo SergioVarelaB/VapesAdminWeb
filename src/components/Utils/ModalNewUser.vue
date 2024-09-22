@@ -21,41 +21,81 @@
         </div>
 
         <div class="form-group">
-          <label for="email">Nombre:</label>
-          <input type="email" id="email" v-model="name" required class="form-control" />
+          <label for="name">Nombre:</label>
+          <input type="string" id="name" v-model="name" required class="form-control" />
         </div>
 
         <div class="form-group">
-          <label for="email">Telefono:</label>
-          <input type="email" id="email" v-model="phone" required class="form-control" />
+          <label for="phone">Telefono:</label>
+          <input type="string" id="phone" v-model="phone" required class="form-control" />
         </div>
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
+
+        <button type="submit" class="btn btn-primary">Click Me</button>
 
       </form>
-      <button class="modal-button">Click Me</button>
+
     </div>
   </div>
 </template>
 
 <script>
+import { createUser } from '../../Api/Users/usersApi.js';
+
 export default {
   props: {
     isOpen: {
       type: Boolean,
       required: true
-    }
+    },
+    
   },
   data() {
     return {
       email: '',
       password: '',
       showPassword: false,
-      errorMessage: ''
+      errorMessage: '',
+      name: '',
+      phone: ''
     };
   },
   methods: {
+    async submitForm() {
+      if (this.validateForm()) {
+        try {
+          const user = {
+            email: this.email,
+            password: this.password,
+            name: this.name,
+            phone: this.phone
+          }
+          const response = createUser(user);
+          console.log(response)
+          if(response.status === 201){
+            //Show toast
+            console.log("Toast")
+          }
+          this.closeModal();
+        } catch (error) {
+          // Handle error response
+          if (error.response) {
+            this.errorMessage = error.response.data.message || 'Fallido';
+          } else {
+            this.errorMessage = 'An error occurred: ' + error.message;
+          }
+        }
+      }
+    },
     closeModal() {
       this.$emit('close');
+      this.email = '';
+      this.password = '';
+      this.showPassword = false;
+      this.errorMessage = '';
+      this.name = '';
+      this.phone = '';
     },
     isValidEmail(email) {
       const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -63,7 +103,26 @@ export default {
     },
     togglePassword() {
       this.showPassword = !this.showPassword;  // Toggle the password visibility
-    }
+    },
+    validateForm() {
+      if (!this.email || !this.password || !this.name || !this.phone) {
+        this.errorMessage = "All fields are required.";
+        return false;
+      }
+
+      if (!this.isValidEmail(this.email)) {
+        this.errorMessage = "Invalid email format.";
+        return false;
+      }
+
+      if (this.password.length < 6) {
+        this.errorMessage = "Password must be at least 6 characters.";
+        return false;
+      }
+
+      this.errorMessage = "";
+      return true;
+    },
   }
 };
 </script>
@@ -104,16 +163,6 @@ export default {
   color: rgb(231, 53, 53);
   text-decoration: none;
   cursor: pointer;
-}
-
-.modal-button {
-  padding: 10px 20px;
-  background-color: #7cb3ea;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  font-size: 16px;
 }
 
 .login-container {

@@ -23,4 +23,26 @@ async function getUsers() {
   }
 }
 
-export { getUsers, login }
+async function createUser(userData) {
+  try {
+    const response = await axiosInstance.post(`${src}/create_user`, userData);
+    return response;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw error;
+  }
+}
+
+async function deleteUser(userData) {
+  try {
+    const response = await axiosInstance.post(`${src}/deleteUser`, userData);
+    return response;
+  } catch (error) {
+    console.error('Error', error);
+    throw error;
+  }
+}
+
+
+
+export { getUsers, login, createUser, deleteUser }

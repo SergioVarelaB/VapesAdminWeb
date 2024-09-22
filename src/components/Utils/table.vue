@@ -9,7 +9,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(row, index) in sortedRows" :key="index">
+                <tr @click="modalDelete(index)" v-for="(row, index) in sortedRows" :key="index">
                     <td v-for="(value, i) in row" :key="i">{{ value }}</td>
                 </tr>
             </tbody>
@@ -56,6 +56,10 @@ export default {
                 this.sortColumn = index;
                 this.sortAsc = true;
             }
+        },
+        modalDelete(index){
+            console.log(this.rows[index]._id);
+            this.$emit('update-data', this.rows[index]._id);
         }
     }
 };
