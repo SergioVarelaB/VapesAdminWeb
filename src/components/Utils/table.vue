@@ -57,7 +57,7 @@ export default {
                 this.sortAsc = true;
             }
         },
-        modalDelete(index){
+        modalDelete(index) {
             this.$emit('update-data', this.rows[index]._id);
         }
     }
@@ -65,10 +65,19 @@ export default {
 </script>
 
 <style scoped>
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    /* Agrega desplazamiento horizontal */
+    -webkit-overflow-scrolling: touch;
+    /* Para suavizar el scroll en dispositivos iOS */
+}
+
 .custom-table {
     width: 100%;
     border-collapse: collapse;
     margin: 20px 0;
+    text-align: center;
 }
 
 .custom-table th,
@@ -86,6 +95,7 @@ export default {
     background-color: #b5def9;
 }
 
+
 .login-container {
     max-width: 2000px;
     margin: 0 auto;
@@ -93,5 +103,33 @@ export default {
     border: 1px solid #ccc;
     border-radius: 8px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+}
+
+/* Opcional: Ajusta las celdas en pantallas pequeñas */
+@media screen and (max-width: 768px) {
+    .table-container {
+        overflow-x: hidden;
+        /* Agrega desplazamiento horizontal */
+        -webkit-overflow-scrolling: touch;
+        /* Para suavizar el scroll en dispositivos iOS */
+    }
+
+    .custom-table {
+        width: 100%;
+        font-size: 45%;
+    }
+
+    .custom-table th,
+    .custom-table td {
+        border: 1px solid #a0a0a0;
+    }
+
+    .login-container {
+        border: 0px ;
+        box-shadow: none;
+        padding: 0%;
+        margin: 5px;
+    }
 }
 </style>

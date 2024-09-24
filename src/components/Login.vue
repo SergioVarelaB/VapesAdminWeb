@@ -47,6 +47,11 @@ export default {
                         password: this.password
                     }
                     const response = await login(req);
+
+                    // Save user data and JWT in localStorage
+                    localStorage.setItem('token', response.accessToken);
+                    localStorage.setItem('user', response.user);
+                    console.log(JSON.stringify(response));
                     
                     if(response.user.isAdmin){
                         this.$router.push('/dashboard-admin');
