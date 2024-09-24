@@ -3,47 +3,56 @@
     <!-- Container for the h1 and button -->
     <div class="header-row">
       <!-- Centered h1 tag -->
-      <h1 class="header-title"> Lista de ultimas ventas</h1>
+      <h1 class="header-title"> Lista de ultimas ventas de {{ user.name }}</h1>
       <!-- Button to open the modal, aligned to the right -->
-      <button @click="openModal" class="open-button"> Crear Nuevo Usuario + </button>
+      <button @click="openModal" class="open-button"> Crear Nueva venta + </button>
     </div>
     <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
+    <ModalNewSale :user = user._id  :isOpen="isModalOpen" @close="closeModal" />
   </div>
 </template>
 
 <script>
 import TableComponent from './Utils/table.vue';
-import { getOrdersByUser } from '../Api/Dashboard/dashboard.js';
+import ModalNewSale from './Utils/ModalNewSale.vue';
+import { getOrdersByUser, createSale } from '../Api/Dashboard/dashboard.js';
 
 
 export default {
   components: {
     TableComponent,
+    ModalNewSale
   },
   data() {
     return {
       tableHeadersSales: ['ID', 'Repartidor', 'Cantidad', 'Cliente', 'Fecha'],
       tableRowsSales: [],
       isModalOpen: false,
+      user: {},
+      errorMessage: '',
     };
   },
   mounted() {
-    this.getAllSales();
+    this.loadUserInfo();
   },
   methods: {
+    loadUserInfo(){
+      this.user = JSON.parse(localStorage.getItem('user'));
+      this.getAllSales(this.user._id);
+    },
     openModal() {
       this.isModalOpen = true;
     },
     closeModal() {
-      this.getAllSales();
+      this.loadUserInfo();
       this.isModalOpen = false;
     },
     salesCreated(){
       this.getAllSales();
     },
-    async getAllSales() {
+    async getAllSales(user_id) {
       try {
-        const response = await getOrdersByUser();
+        const response = await getOrdersByUser(user_id); 
         this.tableRowsSales = response.data.sales;
       } catch (error) {
         // Handle error response
@@ -53,7 +62,20 @@ export default {
           this.errorMessage = 'An error occurred: ' + error.message;
         }
       }
-    }
+    },
+    async createSaleVue(){
+      try {
+        const response = await createSale(); 
+        this.tableRowsSales = response.data.sales;
+      } catch (error) {
+        // Handle error response
+        if (error.response) {
+          this.errorMessage = error.response.data.message || 'Fallido';
+        } else {
+          this.errorMessage = 'An error occurred: ' + error.message;
+        }
+      }
+    },
   },
 };
 </script>
@@ -113,5 +135,31 @@ export default {
     }
 }
 
+/* Opcional: Ajusta las celdas en pantallas pequeñas */
+@media screen and (max-width: 768px) {
 
+.header-row {
+  font-size: smaller;
+}
+/* Style for the centered h1 */
+.header-title {
+font-size: 20px;
+}
+
+br {
+display: none;
+}
+
+/* Style for the button, aligned to the right */
+.open-button {
+  padding: 5px 5px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 10px;
+}
+
+}
 </style>

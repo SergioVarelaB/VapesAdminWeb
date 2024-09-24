@@ -13,9 +13,10 @@ async function getOrders() {
   }
 }
 
-async function getOrdersByUser(user) {
+async function getOrdersByUser(user_id) {
   try {
-    const response = await axiosInstance.post(`${srcOrders}/get_sales_by_user`, {user: user});
+    console.log(user_id)
+    const response = await axiosInstance.post(`${srcOrders}/get_sales_by_user`, { user: user_id});
     return response;
   } catch (error) {
     console.error('Error fetching orders:', error);
@@ -23,4 +24,14 @@ async function getOrdersByUser(user) {
   }
 }
 
-export {getOrders, getOrdersByUser};
+async function createSale(body) {
+  try {
+    const response = await axiosInstance.post(`${srcOrders}/create_order`, body);
+    return response;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+}
+
+export {getOrders, getOrdersByUser, createSale};
