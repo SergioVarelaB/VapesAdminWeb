@@ -8,7 +8,19 @@
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  created() {
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
+    // Si el token existe, redirigir al dashboard correspondiente
+    if (token) {
+      if (user.isAdmin) {
+        this.$router.push('/dashboard-admin');
+      } else {
+        this.$router.push('/dashboard-user');
+      }
+    }
+  },
 };
 </script>
 
