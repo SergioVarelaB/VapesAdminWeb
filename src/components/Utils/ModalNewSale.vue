@@ -94,12 +94,12 @@
       },
       validateForm() {
         if (!this.amount || !this.items || !this.phone) {
-          this.errorMessage = "All fields are required.";
+          this.errorMessage = "Todos los campos son requeridos";
           return false;
         }
 
         if (this.phone.length < 9) {
-          this.errorMessage = "Password must be at least 6 characters.";
+          this.errorMessage = "El telefono debe de ser de por lo menos 9 digitos";
           return false;
         }
   

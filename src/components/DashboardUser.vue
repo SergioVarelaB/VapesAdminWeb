@@ -25,7 +25,7 @@ export default {
   },
   data() {
     return {
-      tableHeadersSales: ['ID', 'Repartidor', 'Cantidad', 'Cliente', 'Fecha'],
+      tableHeadersSales: ['ID', 'Repartidor', 'Cantidad', 'Cliente', 'items', 'Fecha'],
       tableRowsSales: [],
       isModalOpen: false,
       user: {},
@@ -139,11 +139,11 @@ export default {
 @media screen and (max-width: 768px) {
 
 .header-row {
-  font-size: smaller;
+  font-size: 15px;
 }
 /* Style for the centered h1 */
 .header-title {
-font-size: 20px;
+font-size: 15px;
 }
 
 br {

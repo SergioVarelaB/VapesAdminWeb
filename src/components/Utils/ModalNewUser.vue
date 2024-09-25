@@ -108,7 +108,7 @@ export default {
     },
     validateForm() {
       if (!this.email || !this.password || !this.name || !this.phone) {
-        this.errorMessage = "All fields are required.";
+        this.errorMessage = "Todos los campos son requeridos";
         return false;
       }
 

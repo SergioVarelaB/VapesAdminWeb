@@ -37,7 +37,7 @@ export default {
     return {
       tableHeadersUsers: ['ID', 'email', 'nombre', 'Admin', 'telefono'],
       tableRowsUsers: [],
-      tableHeadersSales: ['ID', 'Repartidor', 'Cantidad', 'Cliente', 'Fecha'],
+      tableHeadersSales: ['ID', 'Repartidor', 'Cantidad', 'Cliente', 'items', 'Fecha'],
       tableRowsSales: [],
       isModalOpen: false,
       isModalDeleteUsersOpen: false,
