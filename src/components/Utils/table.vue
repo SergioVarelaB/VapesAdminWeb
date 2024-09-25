@@ -80,10 +80,10 @@ export default {
     },
     methods: {
         sortTable(index) {
-            if (this.sortColumn === index + 1) {
+            if (this.sortColumn === index) {
                 this.sortAsc = !this.sortAsc;
             } else {
-                this.sortColumn = index + 1;
+                this.sortColumn = index;
                 this.sortAsc = true;
             }
         },
