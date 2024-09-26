@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <!-- Container for the h1 and button -->
+    <h1 class="header-title"> Hola {{ user.name }}!! </h1>
     <div class="header-row">
       <!-- Centered h1 tag -->
       <h1 class="header-title"> Lista de Repartidores </h1>
-
       <!-- Button to open the modal, aligned to the right -->
       <button @click="openModal" class="open-button"> Crear Nuevo Usuario + </button>
     </div>
@@ -41,14 +41,19 @@ export default {
       tableRowsSales: [],
       isModalOpen: false,
       isModalDeleteUsersOpen: false,
-      idUserDelete: ""
+      idUserDelete: "",
+      user: {}
     };
   },
   mounted() {
-    this.getAllSales();
-    this.getUsersVue();
+    this.loadUserInfo();
   },
   methods: {
+    loadUserInfo() {
+      this.user = JSON.parse(localStorage.getItem('user'));
+      this.getUsersVue();
+      this.getAllSales();
+    },
     openDeleteModal(row_id) {
       this.isModalDeleteUsersOpen = true;
       this.idUserDelete = row_id;
