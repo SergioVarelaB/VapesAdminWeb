@@ -2,6 +2,7 @@
   <div class="container">
     <!-- Container for the h1 and button -->
     <h1 class="header-title"> Hola {{ user.name }}!! </h1>
+    <br><br>
     <div class="header-row">
       <!-- Centered h1 tag -->
       <h1 class="header-title"> Lista de Repartidores </h1>
@@ -59,15 +60,12 @@ export default {
       this.idUserDelete = row_id;
     },
     closeDeleteModal() {
-      this.getUsersVue();
       this.isModalDeleteUsersOpen = false;
     },
     openModal() {
       this.isModalOpen = true;
     },
     closeModal() {
-      this.getAllSales();
-      this.getUsersVue();
       this.isModalOpen = false;
     },
     userCreated() {

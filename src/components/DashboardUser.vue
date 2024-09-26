@@ -44,7 +44,6 @@ export default {
       this.isModalOpen = true;
     },
     closeModal() {
-      this.loadUserInfo();
       this.isModalOpen = false;
     },
     salesCreated(){
