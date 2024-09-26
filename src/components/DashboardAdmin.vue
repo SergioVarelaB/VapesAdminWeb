@@ -148,13 +148,13 @@ export default {
     font-size: smaller;
   }
   /* Style for the centered h1 */
-.header-title {
-  font-size: 20px;
-}
+  .header-title {
+    font-size: 20px;
+  }
 
-br {
-  display: none;
-}
+  br {
+    display: none;
+  }
 
   /* Style for the button, aligned to the right */
   .open-button {
