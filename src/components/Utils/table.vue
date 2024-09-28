@@ -38,7 +38,6 @@ export default {
     },
     computed: {
         sortedRows() {
-            console.log(this.rows);
             if (this.sortColumn === null) {
                 return this.rows;
             }
@@ -46,9 +45,6 @@ export default {
             return [...this.rows].sort((a, b) => {
                 const aVal = a[this.sortColumn];
                 const bVal = b[this.sortColumn];
-
-                // Log to check values being compared
-                console.log(`Comparing ${aVal} and ${bVal}`);
 
                 // Handle null or undefined values (put them last)
                 if (aVal == null) return this.sortAsc ? -1 : 1;

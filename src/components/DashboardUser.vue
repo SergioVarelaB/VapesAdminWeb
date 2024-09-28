@@ -16,6 +16,19 @@
       <ModalDeleteUsers :idUser="idUserDelete" :isOpen="isModalDeleteUsersOpen" @close="closeDeleteModal" @deleted="deletedUser" />
       <div class="header-row">
         <!-- Centered h1 tag -->
+
+        <h1 class="header-title"></h1>
+
+        <p class="header-title" >Fecha de inicio:</p>
+        <input type="date" class="open-button" v-model="selectedDateStart" id="date" />
+
+
+        <p class="header-title">Fecha de finalización:</p>
+        <input type="date" class="open-button" v-model="selectedDateEnd" id="date" />
+
+      </div>
+      <div class="header-row">
+        <!-- Centered h1 tag -->
         <h1 class="header-title">Lista de ventas</h1>
         <!-- Button to open the modal, aligned to the right -->
         <button @click="downloadCSV" class="open-button"> descargar archivo de ventas </button>
@@ -63,15 +76,27 @@ export default {
       errorMessage: '',
       isModalDeleteUsersOpen: false,
       idUserDelete: "",
+      selectedDateStart: this.formatDate(new Date()),
+      selectedDateEnd: null
     };
   },
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'));
     this.loadUserInfo();
   },
+  watch: {
+    // Observa cuando 'startDate' o 'endDate' cambian y ejecuta la función
+    selectedDateStart() {
+      this.validateDates();
+    },
+    selectedDateEnd() {
+      this.validateDates();
+    }
+  },
   methods: {
     loadUserInfo() {
       if (this.user.isAdmin) {
+        this.setInitDates();
         this.getUsersVue();
       }
       this.getAllSales(this.user._id);
@@ -103,7 +128,11 @@ export default {
     async getAllSales(user_id) {
       try {
         if (this.user.isAdmin) {
-          const response = await getOrders();
+          const body = {
+            startDate: this.selectedDateStart,
+            endDate: this.selectedDateEnd
+          }
+          const response = await getOrders(body);
           this.tableRowsSales = response.data.sales;
           return;
         } else {
@@ -182,6 +211,27 @@ export default {
       
       // Join headers and rows to form the CSV
       return [headers, ...rows].join('\n');
+    },
+    setInitDates(){
+      const today = new Date();
+      this.selectedDateEnd = this.formatDate(today);
+      this.selectedDateStart = this.formatDate(new Date(today.setDate(today.getDate() - 7)));
+    },
+    formatDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes en formato 2 dígitos
+      const day = String(date.getDate()).padStart(2, '0'); // Día en formato 2 dígitos
+      return `${year}-${month}-${day}`;
+    },
+    validateDates(){
+      const start = new Date(this.selectedDateStart);
+      const end = new Date(this.selectedDateEnd);
+      if (start > end){
+        toast.error("La fecha de inicio debe ser anterior a la fecha de finalización");
+        this.setInitDates();
+      }else{
+        this.getAllSales(this.user._id);
+      }
     }
   },
 };
@@ -231,6 +281,7 @@ export default {
   border-radius: 5px;
   font-size: 16px;
   white-space: nowrap;
+  margin-left: 12px;
   /* Prevents text from wrapping in small spaces */
 }
 
@@ -267,6 +318,11 @@ export default {
     border: none;
     cursor: pointer;
     border-radius: 5px;
+    font-size: 10px;
+  }
+
+  .p{
+    padding: 5px 5px;
     font-size: 10px;
   }
 

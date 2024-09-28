@@ -51,7 +51,6 @@ export default {
                     // Save user data and JWT in localStorage
                     localStorage.setItem('token', response.accessToken);
                     localStorage.setItem('user', JSON.stringify(response.user));
-                    console.log(JSON.stringify(response));
                     
                     if(response.user.isAdmin){
                         this.$router.push('/dashboard');

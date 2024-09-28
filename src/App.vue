@@ -58,13 +58,14 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+
 .logout {
     color: #aaa;
     float: right;
     font-size: 40px;
     font-weight: bold;
     display: flex;
-    margin-right: .5rem;
+    margin-right: 5rem;
 }
 
 .logout:hover,
@@ -73,4 +74,13 @@ export default {
     text-decoration: none;
     cursor: pointer;
 }
+
+
+/* Opcional: Ajusta las celdas en pantallas pequeñas */
+@media screen and (max-width: 768px) {
+  .logout {
+    margin-right: .5rem;
+}
+}
+
 </style>
