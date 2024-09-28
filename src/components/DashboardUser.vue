@@ -67,7 +67,7 @@ export default {
   },
   data() {
     return {
-      tableHeadersSales: ['ID', 'Repartidor', 'Cantidad', 'Cliente', 'items', 'Fecha'],
+      tableHeadersSales: ['ID', 'Cantidad', 'items', 'fecha', 'Repartidor'],
       tableRowsSales: [],
       tableHeadersUsers: ['ID', 'email', 'nombre', 'Admin', 'telefono'],
       tableRowsUsers: [],
