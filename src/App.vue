@@ -40,9 +40,9 @@ export default {
     // Si el token existe, redirigir al dashboard correspondiente
     if (token) {
       if (user.isAdmin) {
-        this.$router.push('/dashboard-admin');
+        this.$router.push('/dashboard');
       } else {
-        this.$router.push('/dashboard-user');
+        this.$router.push('/dashboard');
       }
     }
   },

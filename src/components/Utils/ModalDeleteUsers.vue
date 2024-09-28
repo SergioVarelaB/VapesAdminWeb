@@ -40,7 +40,7 @@ export default {
                 const response = await deleteUser({ id: this.idUser });
                 if (response.status === 200) {
                     toast.success("Usuario eliminado correctamente");
-                    this.closeModal()
+                    this.userDeleted()
                 }
             }catch(error){
                 toast.error("No fue posible eliminar este registro");
@@ -50,6 +50,11 @@ export default {
             this.id = '';
             this.errorMessage = '';
             this.$emit('close');
+        },
+        userDeleted() {
+            this.id = '';
+            this.errorMessage = '';
+            this.$emit('deleted');
         },
     }
 };

@@ -54,9 +54,9 @@ export default {
                     console.log(JSON.stringify(response));
                     
                     if(response.user.isAdmin){
-                        this.$router.push('/dashboard-admin');
+                        this.$router.push('/dashboard');
                     }else{
-                        this.$router.push('/dashboard-user');
+                        this.$router.push('/dashboard');
                     }
 
                 } catch (error) {

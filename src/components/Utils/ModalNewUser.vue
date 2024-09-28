@@ -2,7 +2,7 @@
 <template>
   <div v-if="isOpen" class="modal">
     <div class="modal-content">
-      <span class="close" @click="closeModal">&times;</span>
+      <span class="close" @click="closeModal(false)">&times;</span>
       <form @submit.prevent="submitForm">
         <div class="form-group">
           <label for="email">Email:</label>
@@ -75,7 +75,7 @@ export default {
           if(response.status === 201){
             //Show toast
             toast.success("Usuario creado correctamente");
-            this.closeModal();
+            this.closeModal(true);
           }else{
             this.errorMessage = response.message;
           }
@@ -90,8 +90,12 @@ export default {
         }
       }
     },
-    closeModal() {
-      this.$emit('close');
+    closeModal(created) {
+      if(created){
+        this.$emit('created');
+      }else{
+        this.$emit('close');
+      }
       this.email = '';
       this.password = '';
       this.showPassword = false;
