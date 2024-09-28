@@ -14,14 +14,19 @@
       <!-- Modal component -->
       <ModalCreateUser :isOpen="isModalOpen" @close="closeModal" @created="userCreated" />
       <ModalDeleteUsers :idUser="idUserDelete" :isOpen="isModalDeleteUsersOpen" @close="closeDeleteModal" @deleted="deletedUser" />
-      <h1 class="header-title">Lista de ventas</h1>
+      <div class="header-row">
+        <!-- Centered h1 tag -->
+        <h1 class="header-title">Lista de ventas</h1>
+        <!-- Button to open the modal, aligned to the right -->
+        <button @click="downloadCSV" class="open-button"> descargar archivo de ventas </button>
+      </div>
       <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
     </div>
 
     <div v-else>
       <div class="header-row">
         <!-- Centered h1 tag -->
-        <h1 class="header-title"> Lista de ultimas ventas de {{ user.name }} {{ user.isAdmin }}</h1>
+        <h1 class="header-title"> Lista de ultimas ventas de {{ user.name }}</h1>
         <!-- Button to open the modal, aligned to the right -->
         <button @click="openModal" class="open-button"> Crear Nueva venta + </button>
       </div>
@@ -141,6 +146,43 @@ export default {
         }
       }
     },
+    downloadCSV() {
+      // Convert JSON to CSV
+      const csvData = this.convertJSONToCSV(this.tableRowsSales);
+      
+      // Create a Blob with the CSV data
+      const blob = new Blob([csvData], { type: 'text/csv' });
+
+      // Create a link element
+      const link = document.createElement('a');
+      
+      // Create a URL for the Blob and set it as the href attribute of the link
+      link.href = URL.createObjectURL(blob);
+      
+      // Set the download attribute to define the filename
+      link.download = 'ventas.csv';
+      
+      // Append the link to the body (required for Firefox)
+      document.body.appendChild(link);
+      
+      // Programmatically click the link to trigger the download
+      link.click();
+      
+      // Remove the link from the document
+      document.body.removeChild(link);
+    },
+    convertJSONToCSV(jsonData) {
+      // Get the headers (keys from the first object in the array)
+      const headers = Object.keys(jsonData[0]).join(',');
+      
+      // Map over the JSON data and join values as CSV
+      const rows = jsonData.map(obj =>
+        Object.values(obj).map(val => `"${val}"`).join(',')
+      );
+      
+      // Join headers and rows to form the CSV
+      return [headers, ...rows].join('\n');
+    }
   },
 };
 </script>

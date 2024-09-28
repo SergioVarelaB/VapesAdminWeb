@@ -64,7 +64,7 @@ export default {
     font-size: 40px;
     font-weight: bold;
     display: flex;
-    margin-right: 5rem;
+    margin-right: .5rem;
 }
 
 .logout:hover,
