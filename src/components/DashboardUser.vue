@@ -67,9 +67,9 @@ export default {
   },
   data() {
     return {
-      tableHeadersSales: ['ID', 'Cantidad', 'items', 'fecha', 'Repartidor'],
+      tableHeadersSales: ['ID', 'Cantidad', 'Items', 'Fecha', 'Repartidor'],
       tableRowsSales: [],
-      tableHeadersUsers: ['ID', 'email', 'nombre', 'Admin', 'telefono'],
+      tableHeadersUsers: ['ID', 'Email', 'Nombre', 'Admin', 'Telefono'],
       tableRowsUsers: [],
       isModalOpen: false,
       user: {},
@@ -81,6 +81,7 @@ export default {
     };
   },
   mounted() {
+    console.log("mounted");
     this.user = JSON.parse(localStorage.getItem('user'));
     this.loadUserInfo();
   },
