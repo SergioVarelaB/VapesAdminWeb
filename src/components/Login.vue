@@ -48,14 +48,9 @@ export default {
                         password: this.password
                     }
                     const response = await login(req);
-
                     // Save user data and JWT in localStorage
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-
                     localStorage.setItem('token', response.accessToken);
                     localStorage.setItem('user', JSON.stringify(response.user));
-
                     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.accessToken}`;
                     
                     this.$router.push('/dashboard');
