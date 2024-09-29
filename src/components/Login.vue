@@ -26,6 +26,7 @@
 </template>
 
 <script>
+import axiosInstance from '@/Api/axios.js';
 import { login } from '../Api/Users/usersApi.js';
 
 export default {
@@ -49,14 +50,15 @@ export default {
                     const response = await login(req);
 
                     // Save user data and JWT in localStorage
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+
                     localStorage.setItem('token', response.accessToken);
                     localStorage.setItem('user', JSON.stringify(response.user));
+
+                    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.accessToken}`;
                     
-                    if(response.user.isAdmin){
-                        this.$router.push('/dashboard');
-                    }else{
-                        this.$router.push('/dashboard');
-                    }
+                    this.$router.push('/dashboard');
 
                 } catch (error) {
                     // Handle error response

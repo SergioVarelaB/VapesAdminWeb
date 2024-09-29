@@ -14,6 +14,7 @@
 <script>
 import { useRoute, useRouter } from 'vue-router';
 import { computed } from 'vue'; // Import computed from Vue
+import axiosInstance from '@/Api/axios.js';
 
 export default {
   name: 'App',
@@ -36,14 +37,10 @@ export default {
   },
   created() {
     const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user'));
     // Si el token existe, redirigir al dashboard correspondiente
     if (token) {
-      if (user.isAdmin) {
-        this.$router.push('/dashboard');
-      } else {
-        this.$router.push('/dashboard');
-      }
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      this.$router.push('/dashboard');
     }
   },
 };
