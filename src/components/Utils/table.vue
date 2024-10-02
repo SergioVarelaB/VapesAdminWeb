@@ -4,16 +4,22 @@
             <thead>
                 <tr>
                     <th v-for="(header, index) in headers" :key="index" @click="sortTable(index)">
-                        {{ header }} <span v-if="sortColumn === index">{{ this.sortAsc ? '▲' : '▼' }}</span>
+                        {{ header }} 
                     </th>
                 </tr>
             </thead>
             <tbody>
-                <tr @click="modalDelete(index)" v-for="(row, index) in sortedRows" :key="index">
+                <tr @click="modalDelete(index)" v-for="(row, index) in paginatedRows" :key="index">
                     <td v-for="(value, i) in row" :key="i">{{ value }}</td>
                 </tr>
             </tbody>
         </table>
+        <!-- Pagination Controls -->
+        <div class="pagination">
+            <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+            <span>Page {{ currentPage }} of {{ totalPages }}</span>
+            <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+        </div>
     </div>
 </template>
 
@@ -28,59 +34,36 @@ export default {
         rows: {
             type: Array,
             required: true
-        }
+        },
+        rowsPerPage: {
+            type: Number,
+            default: 10, // Default number of rows per page
+        },
     },
     data() {
         return {
-            sortColumn: null,
-            sortAsc: true
+            currentPage: 1,
         };
     },
     computed: {
-        sortedRows() {
-            if (this.sortColumn === null) {
-                return this.rows;
-            }
-            // Copy the rows and sort them
-            return [...this.rows].sort((a, b) => {
-                const aVal = a[this.sortColumn];
-                const bVal = b[this.sortColumn];
-
-                // Handle null or undefined values (put them last)
-                if (aVal == null) return this.sortAsc ? -1 : 1;
-                if (bVal == null) return this.sortAsc ? 1 : -1;
-
-                // Handle number comparison
-                if (typeof aVal === 'number' && typeof bVal === 'number') {
-                    return this.sortAsc ? aVal - bVal : bVal - aVal;
-                }
-
-                // Handle date comparison (check if values are dates)
-                const dateA = new Date(aVal);
-                const dateB = new Date(bVal);
-                if (!isNaN(dateA.getTime()) && !isNaN(dateB.getTime())) {
-                    return this.sortAsc ? dateA - dateB : dateB - dateA;
-                }
-
-                // Handle string comparison (case insensitive)
-                if (typeof aVal === 'string' && typeof bVal === 'string') {
-                    return this.sortAsc
-                        ? aVal.toLowerCase().localeCompare(bVal.toLowerCase())
-                        : bVal.toLowerCase().localeCompare(aVal.toLowerCase());
-                }
-
-                // Fallback for unknown types
-                return 0;
-            });
-        }
+        totalPages() {
+            return Math.ceil(this.rows.length / this.rowsPerPage);
+        },
+        paginatedRows() {
+            const start = (this.currentPage - 1) * this.rowsPerPage;
+            const end = start + this.rowsPerPage;
+            return this.rows.slice(start, end);
+        },
     },
     methods: {
-        sortTable(index) {
-            if (this.sortColumn === index) {
-                this.sortAsc = !this.sortAsc;
-            } else {
-                this.sortColumn = index;
-                this.sortAsc = true;
+        nextPage() {
+            if (this.currentPage < this.totalPages) {
+                this.currentPage++;
+            }
+        },
+        prevPage() {
+            if (this.currentPage > 1) {
+                this.currentPage--;
             }
         },
         modalDelete(index) {
@@ -130,6 +113,37 @@ export default {
     border-radius: 8px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 
+}
+
+.pagination {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+button {
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    white-space: nowrap;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    white-space: nowrap;
 }
 
 /* Opcional: Ajusta las celdas en pantallas pequeñas */

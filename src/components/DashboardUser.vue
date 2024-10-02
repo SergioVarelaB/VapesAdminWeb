@@ -20,11 +20,11 @@
         <h1 class="header-title"></h1>
 
         <p class="header-title" >Fecha de inicio:</p>
-        <input type="date" class="open-button" v-model="selectedDateStart" id="date" />
+        <input type="date" class="date-input" v-model="selectedDateStart" id="date" />
 
 
         <p class="header-title">Fecha de finalización:</p>
-        <input type="date" class="open-button" v-model="selectedDateEnd" id="date" />
+        <input type="date" class="date-input" v-model="selectedDateEnd" id="date" />
 
       </div>
       <div class="header-row">
@@ -273,10 +273,9 @@ export default {
 
 
 /* Style for the button, aligned to the right */
-.open-button {
+.date-input {
   padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
+  background-color: #007bff1e;
   border: none;
   cursor: pointer;
   border-radius: 5px;
