@@ -33,4 +33,14 @@ async function createSale(body) {
   }
 }
 
-export {getOrders, getOrdersByUser, createSale};
+async function getProductList() {
+  try {
+    const response = await axiosInstance.post(`${srcOrders}/get_products`, {});
+    return response;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
+}
+
+export {getOrders, getOrdersByUser, createSale, getProductList};

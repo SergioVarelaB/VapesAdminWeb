@@ -13,13 +13,14 @@
       <br><br>
       <!-- Modal component -->
       <ModalCreateUser :isOpen="isModalOpen" @close="closeModal" @created="userCreated" />
-      <ModalDeleteUsers :idUser="idUserDelete" :isOpen="isModalDeleteUsersOpen" @close="closeDeleteModal" @deleted="deletedUser" />
+      <ModalDeleteUsers :idUser="idUserDelete" :isOpen="isModalDeleteUsersOpen" @close="closeDeleteModal"
+        @deleted="deletedUser" />
       <div class="header-row">
         <!-- Centered h1 tag -->
 
         <h1 class="header-title"></h1>
 
-        <p class="header-title" >Fecha de inicio:</p>
+        <p class="header-title">Fecha de inicio:</p>
         <input type="date" class="date-input" v-model="selectedDateStart" id="date" />
 
 
@@ -35,7 +36,6 @@
       </div>
       <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
     </div>
-
     <div v-else>
       <div class="header-row">
         <!-- Centered h1 tag -->
@@ -44,7 +44,8 @@
         <button @click="openModal" class="open-button"> Crear Nueva venta + </button>
       </div>
       <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
-      <ModalNewSale :user=user._id :isOpen="isModalOpen" @close="closeModal" />
+      <ModalNewSale :user=user._id :isOpen="isModalOpen" :productList=productList @close="closeModal"
+        @created="salesCreated" />
     </div>
   </div>
 </template>
@@ -52,7 +53,7 @@
 <script>
 import TableComponent from './Utils/table.vue';
 import ModalNewSale from './Utils/ModalNewSale.vue';
-import { getOrdersByUser, createSale, getOrders } from '../Api/Dashboard/dashboard.js';
+import { getOrdersByUser, createSale, getOrders, getProductList } from '../Api/Dashboard/dashboard.js';
 import { getUsers } from '../Api/Users/usersApi.js';
 import ModalCreateUser from './Utils/ModalNewUser.vue'; // Adjust the path based on your folder structure
 import ModalDeleteUsers from './Utils/ModalDeleteUsers.vue';
@@ -67,7 +68,7 @@ export default {
   },
   data() {
     return {
-      tableHeadersSales: ['ID', 'Cantidad', 'Items', 'Fecha', 'Repartidor'],
+      tableHeadersSales: ['ID', 'Items', 'Cantidad', 'Fecha', 'Repartidor'],
       tableRowsSales: [],
       tableHeadersUsers: ['ID', 'Email', 'Nombre', 'Admin', 'Telefono'],
       tableRowsUsers: [],
@@ -77,11 +78,11 @@ export default {
       isModalDeleteUsersOpen: false,
       idUserDelete: "",
       selectedDateStart: this.formatDate(new Date()),
-      selectedDateEnd: null
+      selectedDateEnd: null,
+      productList: {}
     };
   },
   mounted() {
-    console.log("mounted");
     this.user = JSON.parse(localStorage.getItem('user'));
     this.loadUserInfo();
   },
@@ -100,6 +101,7 @@ export default {
         this.setInitDates();
         this.getUsersVue();
       }
+      this.getProductList()
       this.getAllSales(this.user._id);
     },
     openModal() {
@@ -109,6 +111,7 @@ export default {
       this.isModalOpen = false;
     },
     salesCreated() {
+      this.isModalOpen = false;
       this.getAllSales(this.user._id);
     },
     deleteUser(row_id) {
@@ -149,6 +152,20 @@ export default {
         }
       }
     },
+    async getProductList() {
+      try {
+        const response = await getProductList();
+        this.productList = response.data.products;
+      } catch (error) {
+        // Handle error response
+        toast.error(error.response);
+        if (error.response) {
+          this.errorMessage = error.response.data.message || 'Fallido';
+        } else {
+          this.errorMessage = 'An error occurred: ' + error.message;
+        }
+      }
+    },
     async getUsersVue() {
       try {
         const response = await getUsers();
@@ -179,41 +196,41 @@ export default {
     downloadCSV() {
       // Convert JSON to CSV
       const csvData = this.convertJSONToCSV(this.tableRowsSales);
-      
+
       // Create a Blob with the CSV data
       const blob = new Blob([csvData], { type: 'text/csv' });
 
       // Create a link element
       const link = document.createElement('a');
-      
+
       // Create a URL for the Blob and set it as the href attribute of the link
       link.href = URL.createObjectURL(blob);
-      
+
       // Set the download attribute to define the filename
       link.download = 'ventas.csv';
-      
+
       // Append the link to the body (required for Firefox)
       document.body.appendChild(link);
-      
+
       // Programmatically click the link to trigger the download
       link.click();
-      
+
       // Remove the link from the document
       document.body.removeChild(link);
     },
     convertJSONToCSV(jsonData) {
       // Get the headers (keys from the first object in the array)
       const headers = Object.keys(jsonData[0]).join(',');
-      
+
       // Map over the JSON data and join values as CSV
       const rows = jsonData.map(obj =>
         Object.values(obj).map(val => `"${val}"`).join(',')
       );
-      
+
       // Join headers and rows to form the CSV
       return [headers, ...rows].join('\n');
     },
-    setInitDates(){
+    setInitDates() {
       const today = new Date();
       this.selectedDateEnd = this.formatDate(today);
       this.selectedDateStart = this.formatDate(new Date(today.setDate(today.getDate() - 7)));
@@ -224,13 +241,13 @@ export default {
       const day = String(date.getDate()).padStart(2, '0'); // Día en formato 2 dígitos
       return `${year}-${month}-${day}`;
     },
-    validateDates(){
+    validateDates() {
       const start = new Date(this.selectedDateStart);
       const end = new Date(this.selectedDateEnd);
-      if (start > end){
+      if (start > end) {
         toast.error("La fecha de inicio debe ser anterior a la fecha de finalización");
         this.setInitDates();
-      }else{
+      } else {
         this.getAllSales(this.user._id);
       }
     }
@@ -295,6 +312,12 @@ export default {
     /* Para suavizar el scroll en dispositivos iOS */
   }
 
+  .header-row {
+    width: 100%;
+    padding: 10px;
+    flex-wrap: wrap
+  }
+
   .custom-table {
     width: 100%;
     font-size: 45%;
@@ -321,7 +344,7 @@ export default {
     font-size: 10px;
   }
 
-  .p{
+  .p {
     padding: 5px 5px;
     font-size: 10px;
   }
