@@ -6,7 +6,6 @@ const axiosInstance = axios.create({
   // prod
   baseURL: 'https://vapesadmin.onrender.com/',
   headers: {
-    'Authorization': `Bearer ${localStorage.getItem('token')}`,
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*'  // Adding CORS header
   },
