@@ -15,26 +15,39 @@
       <ModalCreateUser :isOpen="isModalOpen" @close="closeModal" @created="userCreated" />
       <ModalDeleteUsers :idUser="idUserDelete" :isOpen="isModalDeleteUsersOpen" @close="closeDeleteModal"
         @deleted="deletedUser" />
-      <div class="header-row">
-        <!-- Centered h1 tag -->
 
-        <h1 class="header-title"></h1>
-
-        <p class="header-title">Fecha de inicio:</p>
-        <input type="date" class="date-input" v-model="selectedDateStart" id="date" />
-
-
-        <p class="header-title">Fecha de finalización:</p>
-        <input type="date" class="date-input" v-model="selectedDateEnd" id="date" />
-
-      </div>
       <div class="header-row">
         <!-- Centered h1 tag -->
         <h1 class="header-title">Lista de ventas</h1>
         <!-- Button to open the modal, aligned to the right -->
         <button @click="downloadCSV" class="open-button"> descargar archivo de ventas </button>
       </div>
+      
+
+      <div class="header-row">
+        <!-- Centered h1 tag -->
+        <h1 class="header-title"></h1>
+        <p class="header-title">Fecha de inicio:</p>
+        <input type="date" class="date-input" v-model="selectedDateStart" id="date" />
+        <p class="header-title">Fecha de finalización:</p>
+        <input type="date" class="date-input" v-model="selectedDateEnd" id="date" />
+      </div>
+
       <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
+
+      <br><br>
+      <div class="header-row">
+        <!-- Centered h1 tag -->
+        <h1 class="header-title"> Lista de Productos </h1>
+        <!-- Button to open the modal, aligned to the right -->
+        <button @click="openModalNewProduct" class="open-button"> Crear Nuevo producto + </button>
+        <ModalCreeateProduct :isOpen="isModalnewproductOpen" @created="closeModalNewProduct"/>
+      </div>
+      <TableComponent @update-data="updateOrDeleteProduct" :headers="tableHeadersProduct" :rows="tableRowProducts" />
+      <ModelUpdateorDelete @update-data="updateOrDeleteProduct" :product="productEorD"
+        :isOpen="isModalUpdateorDeleteOpen" @close="closeUorDProduct" @finish="productDeletedOrUpdated" />
+      <br><br>
+
     </div>
     <div v-else>
       <div class="header-row">
@@ -44,7 +57,7 @@
         <button @click="openModal" class="open-button"> Crear Nueva venta + </button>
       </div>
       <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
-      <ModalNewSale :user=user._id :isOpen="isModalOpen" :productList=productList @close="closeModal"
+      <ModalNewSale :user=user._id :isOpen="isModalOpen" :productList=tableRowProducts @close="closeModal"
         @created="salesCreated" />
     </div>
   </div>
@@ -57,6 +70,8 @@ import { getOrdersByUser, createSale, getOrders, getProductList } from '../Api/D
 import { getUsers } from '../Api/Users/usersApi.js';
 import ModalCreateUser from './Utils/ModalNewUser.vue'; // Adjust the path based on your folder structure
 import ModalDeleteUsers from './Utils/ModalDeleteUsers.vue';
+import ModelUpdateorDelete from './Utils/ModelUpdateorDelete.vue';
+import ModalCreeateProduct from './Utils/ModalCreeateProduct.vue';
 import { toast } from 'vue3-toastify';
 
 export default {
@@ -64,7 +79,9 @@ export default {
     TableComponent,
     ModalNewSale,
     ModalCreateUser,
-    ModalDeleteUsers
+    ModalDeleteUsers,
+    ModelUpdateorDelete,
+    ModalCreeateProduct
   },
   data() {
     return {
@@ -72,6 +89,8 @@ export default {
       tableRowsSales: [],
       tableHeadersUsers: ['ID', 'Email', 'Nombre', 'Admin', 'Telefono'],
       tableRowsUsers: [],
+      tableHeadersProduct: ['ID', 'Nombre', 'Descripcion'],
+      tableRowProducts: [],
       isModalOpen: false,
       user: {},
       errorMessage: '',
@@ -79,7 +98,10 @@ export default {
       idUserDelete: "",
       selectedDateStart: this.formatDate(new Date()),
       selectedDateEnd: null,
-      productList: {}
+      isModalUpdateorDeleteOpen: false,
+      productEorD: {},
+      isModalnewproductOpen: false,
+
     };
   },
   mounted() {
@@ -110,6 +132,20 @@ export default {
     closeModal() {
       this.isModalOpen = false;
     },
+    closeUorDProduct() {
+      this.isModalUpdateorDeleteOpen = false;
+    },
+    closeModalNewProduct() {
+      this.getProductList();
+      this.isModalnewproductOpen = false;
+    },
+    openModalNewProduct(){
+      this.isModalnewproductOpen = true;
+    },
+    productDeletedOrUpdated(){
+      this.isModalUpdateorDeleteOpen = false;
+      this.getProductList();
+    },
     salesCreated() {
       this.isModalOpen = false;
       this.getAllSales(this.user._id);
@@ -117,6 +153,10 @@ export default {
     deleteUser(row_id) {
       this.isModalDeleteUsersOpen = true;
       this.idUserDelete = row_id;
+    },
+    updateOrDeleteProduct(product) {
+      this.productEorD = this.tableRowProducts.find(item => item._id === product);
+      this.isModalUpdateorDeleteOpen = true;
     },
     closeDeleteModal() {
       this.isModalDeleteUsersOpen = false;
@@ -153,9 +193,11 @@ export default {
       }
     },
     async getProductList() {
+
       try {
         const response = await getProductList();
-        this.productList = response.data.products;
+
+        this.tableRowProducts = response.data.products;
       } catch (error) {
         // Handle error response
         toast.error(error.response);

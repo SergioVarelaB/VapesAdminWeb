@@ -52,10 +52,6 @@ export default {
       type: Boolean,
       required: true
     },
-    user: {
-      type: Object,
-      required: true
-    },
     productList: {
       type: Object,
       required: true

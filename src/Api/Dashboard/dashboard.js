@@ -43,4 +43,42 @@ async function getProductList() {
   }
 }
 
-export {getOrders, getOrdersByUser, createSale, getProductList};
+async function deleteProduct(productId) {
+  try {
+    const response = await axiosInstance.post(`${srcOrders}/delete_product`, {id: productId});
+    return response;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
+}
+
+async function updateProduct(productId, productUpdate) {
+  try {
+    const response = await axiosInstance.post(`${srcOrders}/update_product`, {id: productId, productUpdate: productUpdate});
+    return response;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
+}
+
+async function createProduct(product) {
+  try {
+    const response = await axiosInstance.post(`${srcOrders}/create_product`, product);
+    return response;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
+}
+
+export {
+  getOrders, 
+  getOrdersByUser, 
+  createSale, 
+  getProductList,
+  deleteProduct,
+  updateProduct,
+  createProduct
+};

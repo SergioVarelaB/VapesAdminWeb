@@ -3,7 +3,7 @@
         <table class="custom-table">
             <thead>
                 <tr>
-                    <th v-for="(header, index) in headers" :key="index" @click="sortTable(index)">
+                    <th v-for="(header, index) in headers" :key="index">
                         {{ header }} 
                     </th>
                 </tr>

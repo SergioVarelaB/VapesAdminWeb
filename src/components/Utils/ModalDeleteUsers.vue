@@ -8,7 +8,6 @@
                 <!-- Button to open the modal, aligned to the right -->
                 <span class="close" @click="closeModal">&times;</span>
             </div>
-            <p v-if="errorMessage" class="error-message"> {{ errorMessage }}</p>
             <button @click="submit" class="btn btn-primary">Aceptar</button>
         </div>
     </div>
