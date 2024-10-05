@@ -1,5 +1,4 @@
 import axios from 'axios';
-import router from '../Router/router';  // Import the router
 
 const axiosInstance = axios.create({
   // dev
@@ -12,20 +11,5 @@ const axiosInstance = axios.create({
   },
 });
 
-// Add a response interceptor
-axiosInstance.interceptors.response.use(
-  (response) => {
-    // Any status code that lie within the range of 2xx cause this function to trigger
-    return response;
-  },
-  (error) => {
-    // If the response status is 403, redirect to login page
-    if (error.response && error.response.status === 403) {
-      router.push('/');  // Navigate to login page
-    }
-    // Return any other errors as a rejection
-    return Promise.reject(error);
-  }
-);
 
 export default axiosInstance;
