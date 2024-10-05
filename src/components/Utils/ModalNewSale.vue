@@ -55,6 +55,10 @@ export default {
     productList: {
       type: Object,
       required: true
+    },
+    user: {
+      type: Object,
+      required: true
     }
   },
   data() {
@@ -104,7 +108,7 @@ export default {
       if (this.validateForm()) {
         try {
           const Order = {
-            user: this.user,
+            vendor: this.user,
             amount: this.amount,
             items: this.arrayItems,
           }
