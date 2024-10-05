@@ -37,7 +37,7 @@ export default {
         },
         rowsPerPage: {
             type: Number,
-            default: 10, // Default number of rows per page
+            default: 5, // Default number of rows per page
         },
     },
     data() {

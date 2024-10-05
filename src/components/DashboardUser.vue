@@ -2,53 +2,62 @@
   <div class="container">
     <div v-if="user.isAdmin">
       <h1 class="header-title"> Hola {{ user.name }}!! </h1>
-      <br><br>
-      <div class="header-row">
-        <!-- Centered h1 tag -->
-        <h1 class="header-title"> Lista de Repartidores </h1>
-        <!-- Button to open the modal, aligned to the right -->
-        <button @click="openModal" class="open-button"> Crear Nuevo Usuario + </button>
-      </div>
-      <TableComponent @update-data="deleteUser" :headers="tableHeadersUsers" :rows="tableRowsUsers" />
-      <br><br>
-      <!-- Modal component -->
-      <ModalCreateUser :isOpen="isModalOpen" @close="closeModal" @created="userCreated" />
-      <ModalDeleteUsers :idUser="idUserDelete" :isOpen="isModalDeleteUsersOpen" @close="closeDeleteModal"
-        @deleted="deletedUser" />
-
-      <div class="header-row">
-        <!-- Centered h1 tag -->
-        <h1 class="header-title">Lista de ventas</h1>
-        <!-- Button to open the modal, aligned to the right -->
-        <button @click="downloadCSV" class="open-button"> descargar archivo de ventas </button>
-      </div>
-      
-
-      <div class="header-row">
-        <!-- Centered h1 tag -->
-        <h1 class="header-title"></h1>
-        <p class="header-title">Fecha de inicio:</p>
-        <input type="date" class="date-input" v-model="selectedDateStart" id="date" />
-        <p class="header-title">Fecha de finalización:</p>
-        <input type="date" class="date-input" v-model="selectedDateEnd" id="date" />
+      <nav v-if="user.isAdmin">
+        <button @click="currentPage = 'users'">Usarios</button>
+        <button @click="currentPage = 'sales'">Ventas</button>
+        <button @click="currentPage = 'products'">Productos</button>
+      </nav>
+      <div v-if="currentPage === 'users'">
+        <div class="header-row">
+          <!-- Centered h1 tag -->
+          <h1 class="header-title"> Lista de Repartidores </h1>
+          <!-- Button to open the modal, aligned to the right -->
+          <button @click="openModal" class="open-button"> Crear Nuevo Usuario + </button>
+        </div>
+        <TableComponent @update-data="deleteUser" :headers="tableHeadersUsers" :rows="tableRowsUsers" />
+        <br><br>
+        <!-- Modal component -->
+        <ModalCreateUser :isOpen="isModalOpen" @close="closeModal" @created="userCreated" />
+        <ModalDeleteUsers :idUser="idUserDelete" :isOpen="isModalDeleteUsersOpen" @close="closeDeleteModal"
+          @deleted="deletedUser" />
       </div>
 
-      <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
 
-      <br><br>
-      <div class="header-row">
-        <!-- Centered h1 tag -->
-        <h1 class="header-title"> Lista de Productos </h1>
-        <!-- Button to open the modal, aligned to the right -->
-        <button @click="openModalNewProduct" class="open-button"> Crear Nuevo producto + </button>
-        <ModalCreeateProduct :isOpen="isModalnewproductOpen" @created="closeModalNewProduct"/>
+      <div v-if="currentPage === 'sales'">
+        <div class="header-row">
+          <!-- Centered h1 tag -->
+          <h1 class="header-title">Lista de ventas</h1>
+          <!-- Button to open the modal, aligned to the right -->
+          <button @click="downloadCSV" class="open-button"> descargar archivo de ventas </button>
+        </div>
+        <div class="header-row">
+          <!-- Centered h1 tag -->
+          <h1 class="header-title"></h1>
+          <p class="header-title">Fecha de inicio:</p>
+          <input type="date" class="date-input" v-model="selectedDateStart" id="date" />
+          <p class="header-title">Fecha de finalización:</p>
+          <input type="date" class="date-input" v-model="selectedDateEnd" id="date" />
+        </div>
+        <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
       </div>
-      <TableComponent @update-data="updateOrDeleteProduct" :headers="tableHeadersProduct" :rows="tableRowProducts" />
-      <ModelUpdateorDelete @update-data="updateOrDeleteProduct" :product="productEorD"
-        :isOpen="isModalUpdateorDeleteOpen" @close="closeUorDProduct" @finish="productDeletedOrUpdated" />
-      <br><br>
+
+
+      <div v-if="currentPage === 'products'">
+        <div class="header-row">
+          <!-- Centered h1 tag -->
+          <h1 class="header-title"> Lista de Productos </h1>
+          <!-- Button to open the modal, aligned to the right -->
+          <button @click="openModalNewProduct" class="open-button"> Crear Nuevo producto + </button>
+          <ModalCreeateProduct :isOpen="isModalnewproductOpen" @created="closeModalNewProduct" />
+        </div>
+        <TableComponent @update-data="updateOrDeleteProduct" :headers="tableHeadersProduct" :rows="tableRowProducts" />
+        <ModelUpdateorDelete @update-data="updateOrDeleteProduct" :product="productEorD"
+          :isOpen="isModalUpdateorDeleteOpen" @close="closeUorDProduct" @finish="productDeletedOrUpdated" />
+      </div>
 
     </div>
+
+
     <div v-else>
       <div class="header-row">
         <!-- Centered h1 tag -->
@@ -60,6 +69,8 @@
       <ModalNewSale :user=user._id :isOpen="isModalOpen" :productList=tableRowProducts @close="closeModal"
         @created="salesCreated" />
     </div>
+
+
   </div>
 </template>
 
@@ -85,6 +96,7 @@ export default {
   },
   data() {
     return {
+      currentPage: 'users', // Set default page
       tableHeadersSales: ['ID', 'Items', 'Cantidad', 'Fecha', 'Repartidor'],
       tableRowsSales: [],
       tableHeadersUsers: ['ID', 'Email', 'Nombre', 'Admin', 'Telefono'],
@@ -139,10 +151,10 @@ export default {
       this.getProductList();
       this.isModalnewproductOpen = false;
     },
-    openModalNewProduct(){
+    openModalNewProduct() {
       this.isModalnewproductOpen = true;
     },
-    productDeletedOrUpdated(){
+    productDeletedOrUpdated() {
       this.isModalUpdateorDeleteOpen = false;
       this.getProductList();
     },
@@ -344,6 +356,26 @@ export default {
   /* Prevents text from wrapping in small spaces */
 }
 
+
+nav {
+  display: flex;
+  padding: 10px;
+  gap: 10px;
+  justify-content: center;
+}
+
+button {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  border-radius: 4px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
 
 /* Opcional: Ajusta las celdas en pantallas pequeñas */
 @media screen and (max-width: 768px) {
