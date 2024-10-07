@@ -48,7 +48,7 @@
           <h1 class="header-title"> Lista de Productos </h1>
           <!-- Button to open the modal, aligned to the right -->
           <button @click="openModalNewProduct" class="open-button"> Crear Nuevo producto + </button>
-          <ModalCreeateProduct :isOpen="isModalnewproductOpen" @created="closeModalNewProduct" />
+          <ModalCreeateProduct :isOpen="isModalnewproductOpen" @created="closeModalNewProduct"  @close="closeModalNewProduct2"/>
         </div>
         <TableComponent @update-data="updateOrDeleteProduct" :headers="tableHeadersProduct" :rows="tableRowProducts" />
         <ModelUpdateorDelete @update-data="updateOrDeleteProduct" :product="productEorD"
@@ -149,6 +149,9 @@ export default {
     },
     closeModalNewProduct() {
       this.getProductList();
+      this.isModalnewproductOpen = false;
+    },
+    closeModalNewProduct2() {
       this.isModalnewproductOpen = false;
     },
     openModalNewProduct() {
