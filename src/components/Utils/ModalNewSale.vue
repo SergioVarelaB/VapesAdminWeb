@@ -9,13 +9,27 @@
           <input type="number" id="amount" v-model="amount" required class="form-control" />
         </div>
 
+
+        <label for="amount">Metodo de pago:</label>
+        <div>
+          <select class="form-control" v-model="paymentMethod">
+            <option v-for="product in ['Efectivo', 'Transferencia']" :key="product" :value="product">
+              {{ product }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Product List Section --> 
+
+        <label style="padding: 10px;" for="amount;">Productos a agregar:</label>
         <div class="product-list">
-          <label>Productos a agregar:</label>
-          <select class="label" v-model="selectedOptions">
+          <select class="form-control" style="display: flex;" v-model="selectedOptions">
             <option v-for="product in productList" :key="product._id" :value="product">
               {{ product.name }}
             </option>
           </select>
+
+          <br><br>
 
           <!-- Button to add +1 submitForm -->
           <button class="btn btn-primary"  type="button" @click="addToCart(selectedOptions)" >+1</button>
@@ -24,7 +38,7 @@
         <!-- Cart Section -->
         <div v-if="arrayItems.length > 0">
           <div class="cart product-list" v-for="item in arrayItems" :key="item._id">
-            <p class=label>{{ item.name }} (x{{ item.quantity }})</p>
+            <p>{{ item.name }} (x{{ item.quantity }})</p>
             <button class="btn btn-danger" @click="removeFromCart(item._id)">Eliminar</button>
           </div>
         </div>
@@ -69,6 +83,7 @@ export default {
       items: '',
       arrayItems: [],
       selectedOptions: null,
+      paymentMethod: '',
     };
   },
   methods: {
@@ -78,6 +93,7 @@ export default {
       this.arrayItems = [];
       this.errorMessage = '';
       this.selectedOptions = null;
+      this.paymentMethod = '';
     },
     closeModal() {
       this.resetItems();
@@ -88,7 +104,6 @@ export default {
       this.$emit('created');
     },
     addToCart(product) {
-      console.log(this.arrayItems)
       if (product) {
         const existingItem = this.arrayItems.find(item => item._id === product._id);
         if (existingItem) {
@@ -110,6 +125,7 @@ export default {
           const Order = {
             vendor: this.user,
             amount: this.amount,
+            paymentMethod: this.paymentMethod,
             items: this.arrayItems,
           }
           const response = await createSale(Order);
@@ -133,7 +149,7 @@ export default {
       }
     },
     validateForm() {
-      if (!this.amount || this.arrayItems.length === 0) {
+      if (!this.amount || this.arrayItems.length === 0 || this.paymentMethod === '') {
         this.errorMessage = "Todos los campos son requeridos";
         return false;
       }
@@ -182,6 +198,12 @@ export default {
   cursor: pointer;
 }
 
+p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    margin-right: auto;
+}
+
 .login-container {
   max-width: 400px;
   margin: 0 auto;
@@ -201,8 +223,13 @@ label {
 }
 
 .label {
-  display: block;
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
   margin-bottom: 5px;
+  padding: 8px;
+  border: 1px solid #888;
+  box-sizing: border-box;
 }
 
 .password-wrapper {
@@ -257,10 +284,8 @@ input {
 .product-list,
 .cart-items {
   display: flex;
-  justify-content: space-between;
-  /* Distribute space between items */
-  flex-wrap: wrap;
-  /* Allows items to wrap onto the next line if they overflow */
+    /* flex-wrap: nowrap; */
+  align-items: center;
 }
 
 .cart {
