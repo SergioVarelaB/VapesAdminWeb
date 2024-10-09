@@ -8,12 +8,12 @@
             </div>
 
             <div class="form-group">
-                <label for="password">Password:</label>
+                <label for="password">Contraseña:</label>
                 <div class="password-wrapper">
                     <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" required
                         minlength="6" class="form-control" />
                     <button type="button" @click="togglePassword" class="toggle-password-btn">
-                        {{ showPassword ? 'Hide' : 'Show' }}
+                        {{ showPassword ? 'Ocultar' : 'Mostrar' }}
                     </button>
                 </div>
             </div>

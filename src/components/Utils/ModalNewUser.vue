@@ -32,7 +32,7 @@
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
 
-        <button type="submit" class="btn btn-primary">Click Me</button>
+        <button type="submit" class="btn btn-primary">Agregar usuario</button>
 
       </form>
 

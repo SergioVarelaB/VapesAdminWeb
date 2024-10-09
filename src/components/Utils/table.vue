@@ -16,9 +16,9 @@
         </table>
         <!-- Pagination Controls -->
         <div class="pagination">
-            <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+            <button @click="prevPage" :disabled="currentPage === 1">Anterior</button>
             <span>Page {{ currentPage }} of {{ totalPages }}</span>
-            <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+            <button @click="nextPage" :disabled="currentPage === totalPages">Siguiente</button>
         </div>
     </div>
 </template>
