@@ -9,7 +9,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr @click="modalDelete(index)" v-for="(row, index) in paginatedRows" :key="index">
+                <tr @click="modalDelete(row)" v-for="(row, index) in paginatedRows" :key="index">
                     <td v-for="(value, i) in row" :key="i">{{ value }}</td>
                 </tr>
             </tbody>
@@ -67,7 +67,7 @@ export default {
             }
         },
         modalDelete(index) {
-            this.$emit('update-data', this.rows[index]._id);
+            this.$emit('update-data', index._id);
         }
     }
 };
