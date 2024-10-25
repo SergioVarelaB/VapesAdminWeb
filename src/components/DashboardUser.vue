@@ -97,7 +97,8 @@ export default {
   data() {
     return {
       currentPage: 'users', // Set default page
-      tableHeadersSales: ['ID','Articulos vendidos',  'Metodo de pago', 'Cantidad', 'Fecha', 'Repartidor'],
+      tableHeadersSales: ['Metodo de pago', 'Articulos vendidos', "Efectivo" , 'Transferencia',  'Total', 'Fecha'],
+      tableHeadersSalesAdmin: ['Metodo de pago', 'Articulos vendidos', "desgloce de venta" ,'Total', 'Repartidor'],
       tableRowsSales: [],
       tableHeadersUsers: ['ID', 'Email', 'Nombre', 'Admin', 'Telefono'],
       tableRowsUsers: [],

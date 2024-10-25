@@ -4,20 +4,28 @@
     <div class="modal-content">
       <span class="close" @click="closeModal">&times;</span>
       <form @submit.prevent="submitForm">
-        <div class="form-group">
-          <label for="amount">Cantidad en pesos:</label>
-          <input type="number" id="amount" v-model="amount" required class="form-control" />
-        </div>
-
 
         <label for="amount">Metodo de pago:</label>
-        <div>
+        <div style="margin-bottom: 15px;">
           <select class="form-control" v-model="paymentMethod">
-            <option v-for="product in ['Efectivo', 'Transferencia']" :key="product" :value="product">
+            <option v-for="product in ['Efectivo', 'Transferencia', 'Mixto']" :key="product" :value="product">
               {{ product }}
             </option>
           </select>
         </div>
+
+        
+        <div class="form-group" v-if="(paymentMethod !== 'Mixto') && (paymentMethod !== '')">
+          <label for="amount">Cantidad {{ paymentMethod }}:</label>
+          <input type="number" id="amount" v-model="amount" required class="form-control" />
+        </div>
+
+        <div class="form-group" v-if="(paymentMethod === 'Mixto') && (paymentMethod !== '')">
+          <label>Cantidad en Efectivo:</label>
+          <input type="number" id="cash" v-model="cash" required class="form-control" />
+          <label style="padding: 10px;" for="amount">Cantidad en Transferencia:</label>
+          <input type="number" id="transfer" v-model="transfer" required class="form-control" />
+        </div>        
         
         <!-- Product List Section --> 
 
@@ -77,7 +85,9 @@ export default {
   },
   data() {
     return {
-      amount: '',
+      cash: 0,
+      transfer: 0,
+      amount: 0,
       showPassword: false,
       errorMessage: '',
       items: '',
@@ -88,7 +98,9 @@ export default {
   },
   methods: {
     resetItems() {
-      this.amount = '';
+      this.amount = 0;
+      this.cash = 0;
+      this.transfer = 0;
       this.items = [];
       this.arrayItems = [];
       this.errorMessage = '';
@@ -122,9 +134,15 @@ export default {
     async submitForm() {
       if (this.validateForm()) {
         try {
+          if (this.paymentMethod === 'Efectivo') {
+            this.cash = this.amount;
+          } else if (this.paymentMethod === 'Transferencia') {
+            this.transfer = this.amount;
+          }
           const Order = {
             vendor: this.user,
-            amount: this.amount,
+            cash: this.cash,
+            transfer: this.transfer,
             paymentMethod: this.paymentMethod,
             items: this.arrayItems,
           }
@@ -149,7 +167,7 @@ export default {
       }
     },
     validateForm() {
-      if (!this.amount || this.arrayItems.length === 0 || this.paymentMethod === '') {
+      if (this.arrayItems.length === 0 || this.paymentMethod === '' || (this.paymentMethod === 'Mixto' && (this.cash === 0 || this.transfer === 0)) || (this.paymentMethod !== 'Mixto' && this.amount === 0)) {
         this.errorMessage = "Todos los campos son requeridos";
         return false;
       }
