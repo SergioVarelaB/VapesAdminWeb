@@ -38,6 +38,13 @@
           <p class="header-title">Fecha de finalización:</p>
           <input type="date" class="date-input" v-model="selectedDateEnd" id="date" />
         </div>
+        <div class="header-row">
+          <!-- Centered h1 tag -->
+          <h1 class="header-title"></h1>
+          <p class="header-title">Total Efectivo: <strong> ${{ this.totalCash }}</strong> </p>
+          <p class="header-title">Total de Transferencias: <strong>${{ this.totalTransactions }}</strong></p>
+          <p class="header-title">Total: <strong>${{ this.total }}</strong></p>
+        </div>
         <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
       </div>
 
@@ -114,7 +121,9 @@ export default {
       isModalUpdateorDeleteOpen: false,
       productEorD: {},
       isModalnewproductOpen: false,
-
+      totalCash: 0,
+      totalTransactions: 0,
+      total: 0,
     };
   },
   mounted() {
@@ -194,6 +203,9 @@ export default {
           }
           const response = await getOrders(body);
           this.tableRowsSales = response.data.sales;
+          this.totalCash = response.data.totalSalesCash;
+          this.totalTransactions = response.data.totalSalesTranfer;
+          this.total = response.data.totalSales;
           return;
         } else {
           const response = await getOrdersByUser(user_id);
