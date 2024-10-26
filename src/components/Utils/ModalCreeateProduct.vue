@@ -10,6 +10,9 @@
 
                     <label for="description">Descripcion:</label>
                     <input type="text" id="description" v-model="description" required class="form-control" />
+
+                    <label for="description">Costo:</label>
+                    <input type="Number" id="cost" v-model="cost" required class="form-control" />
                 </div>
                 <button @click="create" class="btn btn-primary">Crear Producto</button>
 
@@ -34,6 +37,7 @@ export default {
             name: "",
             errorMessage: '',
             description: "",
+            cost: 0,
         };
     },
     methods: {
@@ -41,6 +45,7 @@ export default {
             this.name = '';
             this.errorMessage = '';
             this.description = '';
+            this.cost = 0;
         },
         closeModal() {
             this.resetItems();
@@ -55,6 +60,7 @@ export default {
                 const productUpdate = {
                     name: this.name,
                     description: this.description,
+                    cost: this.cost
                 }
                 const response = await createProduct(productUpdate);
                 if (response.status === 201) {

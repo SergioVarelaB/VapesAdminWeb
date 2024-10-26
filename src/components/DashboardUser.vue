@@ -109,7 +109,7 @@ export default {
       tableRowsSales: [],
       tableHeadersUsers: ['ID', 'Email', 'Nombre', 'Admin', 'Telefono'],
       tableRowsUsers: [],
-      tableHeadersProduct: ['ID', 'Nombre', 'Descripcion'],
+      tableHeadersProduct: ['ID', 'Nombre', 'Descripcion', 'costo'],
       tableRowProducts: [],
       isModalOpen: false,
       user: {},

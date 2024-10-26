@@ -11,6 +11,9 @@
 
                     <label for="description">Descripcion:</label>
                     <input type="text" id="description" v-model="description" required class="form-control" />
+
+                    <label for="description">Costo:</label>
+                    <input type="Number" id="cost" v-model="cost" required class="form-control" />
                 </div>
                 <div class="product-list">
                     <button @click="editProduct" class="btn btn-primary">Editar Producto</button>
@@ -43,6 +46,7 @@ export default {
             name: this.product.name,
             errorMessage: '',
             description: this.product.description,
+            cost: this.product.cost,
         };
     },
     watch: {
@@ -52,6 +56,7 @@ export default {
             } else {
                 this.name = this.product.name
                 this.description = this.product.description
+                this.cost = this.product.cost
             }
         }
     },
@@ -60,6 +65,7 @@ export default {
             this.name = '';
             this.errorMessage = '';
             this.description = '';
+            this.cost = '';
         },
         closeModal() {
             this.resetItems();
@@ -74,6 +80,7 @@ export default {
                 const productUpdate = {
                     name: this.name,
                     description: this.description,
+                    cost: this.cost
                 }
                 const response = await updateProduct(this.product._id, productUpdate);
                 if (response.status === 200) {
