@@ -44,6 +44,7 @@
           <p class="header-title">Total Efectivo: <strong> ${{ this.totalCash }}</strong> </p>
           <p class="header-title">Total de Transferencias: <strong>${{ this.totalTransactions }}</strong></p>
           <p class="header-title">Total: <strong>${{ this.total }}</strong></p>
+          <p class="header-title">Total De Ganancias: <strong>${{ this.totalRevenue }}</strong></p>
         </div>
         <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
       </div>
@@ -105,7 +106,7 @@ export default {
     return {
       currentPage: 'users', // Set default page
       tableHeadersSales: ['Metodo de pago', 'Articulos vendidos', "Efectivo" , 'Transferencia',  'Total', 'Fecha'],
-      tableHeadersSalesAdmin: ['Metodo de pago', 'Articulos vendidos', "desgloce de venta" ,'Total', 'Repartidor'],
+      tableHeadersSalesAdmin: ['Metodo de pago', 'Articulos vendidos', "Efectivo" , 'Transferencia',  'Total', 'Ganancia', 'Fecha', 'Repartidor'],
       tableRowsSales: [],
       tableHeadersUsers: ['ID', 'Email', 'Nombre', 'Admin', 'Telefono'],
       tableRowsUsers: [],
@@ -124,6 +125,7 @@ export default {
       totalCash: 0,
       totalTransactions: 0,
       total: 0,
+      totalRevenue: 0
     };
   },
   mounted() {
@@ -142,6 +144,7 @@ export default {
   methods: {
     loadUserInfo() {
       if (this.user.isAdmin) {
+        this.tableHeadersSales = this.tableHeadersSalesAdmin;
         this.setInitDates();
         this.getUsersVue();
       }
@@ -206,6 +209,7 @@ export default {
           this.totalCash = response.data.totalSalesCash;
           this.totalTransactions = response.data.totalSalesTranfer;
           this.total = response.data.totalSales;
+          this.totalRevenue = response.data.totalSalesRevenue;
           return;
         } else {
           const response = await getOrdersByUser(user_id);
