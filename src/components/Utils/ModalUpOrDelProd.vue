@@ -4,6 +4,7 @@
         <div class="modal-content">
             <span class="close" @click="closeModal">&times;</span>
             <form @submit.prevent="submitForm">
+                <p>{{ product._id }}</p>
                 <div class="form-group">
                     <label for="name">Nombre:</label>
                     <input type="text" id="name" v-model="name" required class="form-control" />
@@ -12,9 +13,13 @@
                     <input type="text" id="description" v-model="description" required class="form-control" />
 
                     <label for="description">Costo:</label>
-                    <input type="Number" id="cost" v-model="cost" required class="form-control" min="0" />
+                    <input type="Number" id="cost" v-model="cost" required class="form-control" min="0"/>
                 </div>
-                <button @click="create" class="btn btn-primary">Crear Producto</button>
+                <div class="product-list">
+                    <button @click="editProduct" class="btn btn-primary">Editar Producto</button>
+
+                    <button @click="deleteProduct" style="background-color: #e6441c" class="btn btn-primary">Eliminar Producto</button>
+                </div>
 
             </form>
 
@@ -23,7 +28,7 @@
 </template>
 
 <script>
-import { createProduct } from '../../Api/Dashboard/dashboard.js';
+import { updateProduct, deleteProduct } from '../../Api/Dashboard/dashboard.js';
 import { toast } from 'vue3-toastify';
 export default {
     props: {
@@ -31,49 +36,85 @@ export default {
             type: Boolean,
             required: true
         },
+        product: {
+            type: Object,
+            required: true
+        }
     },
     data() {
         return {
-            name: "",
+            name: this.product.name,
             errorMessage: '',
-            description: "",
-            cost: 0,
+            description: this.product.description,
+            cost: this.product.cost,
         };
+    },
+    watch: {
+        isOpen() {
+            if (!this.isOpen) {
+                this.resetItems();
+            } else {
+                this.name = this.product.name
+                this.description = this.product.description
+                this.cost = this.product.cost
+            }
+        }
     },
     methods: {
         resetItems() {
             this.name = '';
             this.errorMessage = '';
             this.description = '';
-            this.cost = 0;
+            this.cost = '';
         },
         closeModal() {
             this.resetItems();
             this.$emit('close');
         },
-        created() {
+        editOrDelete() {
             this.resetItems();
-            this.$emit('created');
+            this.$emit('finish');
         },
-        async create() {
+        async editProduct() {
             try {
                 const productUpdate = {
                     name: this.name,
                     description: this.description,
                     cost: this.cost
                 }
-                const response = await createProduct(productUpdate);
-                if (response.status === 201) {
+                const response = await updateProduct(this.product._id, productUpdate);
+                if (response.status === 200) {
                     //Show toast
-                    toast.success("Producto creado correctamente");
-                    this.created();
+                    toast.success("Elemento editado correctamente");
+                    this.editOrDelete();
                 } else {
                     toast.error(response.message)
                     this.errorMessage = response.message;
                 }
             } catch (error) {
                 // Handle error response
-                toast.error("Ha ocurrido un error al crear el producto");
+                toast.error("Ha ocurrido un error al editar el producto");
+                if (error.response) {
+                    this.errorMessage = error.response.data.message || 'Fallido';
+                } else {
+                    this.errorMessage = 'An error occurred: ' + error.message;
+                }
+            }
+        },
+        async deleteProduct() {
+            try {
+                const response = await deleteProduct(this.product._id);
+                if (response.status === 200) {
+                    //Show toast
+                    toast.success("Elemento eliminado correctamente");
+                    this.editOrDelete();
+                } else {
+                    toast.error(response.message)
+                    this.errorMessage = response.message;
+                }
+            } catch (error) {
+                // Handle error response
+                toast.error("Ha ocurrido un error al editar el producto");
                 if (error.response) {
                     this.errorMessage = error.response.data.message || 'Fallido';
                 } else {

@@ -6,6 +6,7 @@
         <button @click="currentPage = 'users'">Usarios</button>
         <button @click="currentPage = 'sales'">Ventas</button>
         <button @click="currentPage = 'products'">Productos</button>
+        <button @click="currentPage = 'inventory'">Inventarios</button>
       </nav>
       <div v-if="currentPage === 'users'">
         <div class="header-row">
@@ -56,11 +57,38 @@
           <h1 class="header-title"> Lista de Productos </h1>
           <!-- Button to open the modal, aligned to the right -->
           <button @click="openModalNewProduct" class="open-button"> Crear Nuevo producto + </button>
-          <ModalCreeateProduct :isOpen="isModalnewproductOpen" @created="closeModalNewProduct"  @close="closeModalNewProduct2"/>
+          <ModalCreeateProduct :isOpen="isModalnewproductOpen" @created="closeModalNewProduct"
+            @close="closeModalNewProduct2" />
         </div>
         <TableComponent @update-data="updateOrDeleteProduct" :headers="tableHeadersProduct" :rows="tableRowProducts" />
         <ModelUpdateorDelete @update-data="updateOrDeleteProduct" :product="productEorD"
           :isOpen="isModalUpdateorDeleteOpen" @close="closeUorDProduct" @finish="productDeletedOrUpdated" />
+      </div>
+
+      <div v-if="currentPage === 'inventory'">
+        <div class="header-row">
+          <!-- Centered h1 tag -->
+          <h1 class="header-title"> Inventarios de usuarios </h1>
+
+          <!-- Button to open the modal, aligned to the right -->
+          <button @click="openCreateInventory" class="open-button"> Crear Nuevo Inventario + </button>
+        </div>
+        <div class="header-row">
+          <!-- Centered h1 tag -->
+          <p class="header-title"> Seleccione un usuario: </p>
+          <select class="form-control" style="display: flex;" v-model="userInventory">
+            <option v-for="users in tableRowsUsers" :key="users._id" :value="users">
+              {{ users.email }}
+            </option>
+          </select>
+        </div>
+        <!-- <TableComponent @update-data="updateOrDeleteProduct" :headers="tableHeadersProduct" :rows="tableRowProducts" /> -->
+        <ModalCreateInventory :users="tableRowsUsers" :productList="tableRowProducts"
+          :isOpen="isModalCreateInventoryOpen" @created="inventoryCreated" @close="closeCreateInventory" />
+
+        <TableComponent :headers="tableHeadersUserInventory" :rows="userInventoryRows" />
+        <!-- <ModelUpdateorDelete @update-data="updateOrDeleteProduct" :product="productEorD" -->
+        <!-- :isOpen="isModalUpdateorDeleteOpen" @close="closeUorDProduct" @finish="productDeletedOrUpdated" /> -->
       </div>
 
     </div>
@@ -85,12 +113,13 @@
 <script>
 import TableComponent from './Utils/table.vue';
 import ModalNewSale from './Utils/ModalNewSale.vue';
-import { getOrdersByUser, createSale, getOrders, getProductList } from '../Api/Dashboard/dashboard.js';
+import { getOrdersByUser, createSale, getOrders, getProductList, getInventory } from '../Api/Dashboard/dashboard.js';
 import { getUsers } from '../Api/Users/usersApi.js';
 import ModalCreateUser from './Utils/ModalNewUser.vue'; // Adjust the path based on your folder structure
 import ModalDeleteUsers from './Utils/ModalDeleteUsers.vue';
-import ModelUpdateorDelete from './Utils/ModelUpdateorDelete.vue';
+import ModelUpdateorDelete from './Utils/ModalUpOrDelProd.vue';
 import ModalCreeateProduct from './Utils/ModalCreeateProduct.vue';
+import ModalCreateInventory from './Utils/ModalCreateInventory.vue';
 import { toast } from 'vue3-toastify';
 
 export default {
@@ -100,13 +129,14 @@ export default {
     ModalCreateUser,
     ModalDeleteUsers,
     ModelUpdateorDelete,
-    ModalCreeateProduct
+    ModalCreeateProduct,
+    ModalCreateInventory
   },
   data() {
     return {
-      currentPage: 'users', // Set default page
-      tableHeadersSales: ['Metodo de pago', 'Articulos vendidos', "Efectivo" , 'Transferencia',  'Total', 'Fecha'],
-      tableHeadersSalesAdmin: ['Metodo de pago', 'Articulos vendidos', "Efectivo" , 'Transferencia',  'Total', 'Ganancia', 'Fecha', 'Repartidor'],
+      currentPage: 'inventory', // Set default page
+      tableHeadersSales: ['Metodo de pago', 'Articulos vendidos', "Efectivo", 'Transferencia', 'Total', 'Fecha'],
+      tableHeadersSalesAdmin: ['Metodo de pago', 'Articulos vendidos', "Efectivo", 'Transferencia', 'Total', 'Ganancia', 'Fecha', 'Repartidor'],
       tableRowsSales: [],
       tableHeadersUsers: ['ID', 'Email', 'Nombre', 'Admin', 'Telefono'],
       tableRowsUsers: [],
@@ -125,7 +155,11 @@ export default {
       totalCash: 0,
       totalTransactions: 0,
       total: 0,
-      totalRevenue: 0
+      totalRevenue: 0,
+      userInventory: "",
+      isModalCreateInventoryOpen: false,
+      tableHeadersUserInventory: ['Cantidad', 'Producto', 'Fecha de asignación'],
+      userInventoryRows: []
     };
   },
   mounted() {
@@ -139,6 +173,11 @@ export default {
     },
     selectedDateEnd() {
       this.validateDates();
+    },
+    userInventory() {
+      // toast.success(`hola!! ${this.userInventory.name}`);
+      //getUser inventory
+      this.loadUserInventory(this.userInventory._id);
     }
   },
   methods: {
@@ -150,6 +189,29 @@ export default {
       }
       this.getProductList()
       this.getAllSales(this.user._id);
+    },
+    async loadUserInventory(user_id) {
+      // user_id
+      toast.success(`hola!! ${user_id}`);
+      try {
+        const response = await getInventory(user_id);
+        if (response.status === 200) {
+          //Show toast
+          this.userInventoryRows = response.data.inventory;
+        } else {
+          toast.error(response.message)
+          this.errorMessage = response.message;
+        }
+      } catch (error) {
+        // Handle error response
+        toast.error("Ha ocurrido un error al crear el producto");
+        if (error.response) {
+          this.errorMessage = error.response.data.message || 'Fallido';
+        } else {
+          this.errorMessage = 'An error occurred: ' + error.message;
+        }
+      }
+      // /get_inventory
     },
     openModal() {
       this.isModalOpen = true;
@@ -196,6 +258,16 @@ export default {
     userCreated() {
       this.isModalOpen = false;
       this.getUsersVue();
+    },
+    openCreateInventory() {
+      this.isModalCreateInventoryOpen = true;
+    },
+    closeCreateInventory() {
+      this.isModalCreateInventoryOpen = false;
+    },
+    inventoryCreated() {
+      // get all the new inventories
+      this.isModalCreateInventoryOpen = false;
     },
     async getAllSales(user_id) {
       try {

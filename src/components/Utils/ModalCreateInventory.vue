@@ -4,22 +4,40 @@
         <div class="modal-content">
             <span class="close" @click="closeModal">&times;</span>
             <form @submit.prevent="submitForm">
-                <p>{{ product._id }}</p>
                 <div class="form-group">
-                    <label for="name">Nombre:</label>
-                    <input type="text" id="name" v-model="name" required class="form-control" />
+                    <label for="name">Usuario asignado:</label>
+                    <select class="form-control" style="display: flex;" v-model="userInventory">
+                        <option v-for="users in users" :key="users._id" :value="users">
+                            {{ users.email }}
+                        </option>
+                    </select>
 
-                    <label for="description">Descripcion:</label>
-                    <input type="text" id="description" v-model="description" required class="form-control" />
+                    <label style="margin-top: 10px;" for="name">Nombre:</label>
 
-                    <label for="description">Costo:</label>
-                    <input type="Number" id="cost" v-model="cost" required class="form-control" />
+                    <label style="padding: 10px;" for="amount;">Productos a agregar:</label>
+                    <div class="product-list" style="    display: flex; gap: 10px; flex-wrap: nowrap;">
+                        <select class="form-control" style="display: flex;" v-model="selectedOptions">
+                            <option v-for="product in productList" :key="product._id" :value="product">
+                                {{ product.name }}
+                            </option>
+                        </select>
+                        <input type="Number" id="quantity" v-model="quantity" required class="form-control"
+                            style="width: 20%;" min="0" />
+                        <button @click="addToCart(selectedOptions, quantity)" class="btn btn-primary"
+                            style="width: 20%; ">+</button>
+                    </div>
+
+
+                    <!-- Cart Section -->
+                    <div v-if="arrayItems.length > 0">
+                        <div class="cart product-list" v-for="item in arrayItems" :key="item._id">
+                            <p>{{ item.name }} (x{{ item.quantity }})</p>
+                            <button class="btn btn-danger" @click="removeFromCart(item.product_id)">Eliminar</button>
+                        </div>
+                    </div>
+
                 </div>
-                <div class="product-list">
-                    <button @click="editProduct" class="btn btn-primary">Editar Producto</button>
-
-                    <button @click="deleteProduct" style="background-color: #e6441c" class="btn btn-primary">Eliminar Producto</button>
-                </div>
+                <button @click="create" class="btn btn-primary">Crear Producto</button>
 
             </form>
 
@@ -28,7 +46,7 @@
 </template>
 
 <script>
-import { updateProduct, deleteProduct } from '../../Api/Dashboard/dashboard.js';
+import { createInventory } from '../../Api/Dashboard/dashboard.js';
 import { toast } from 'vue3-toastify';
 export default {
     props: {
@@ -36,85 +54,73 @@ export default {
             type: Boolean,
             required: true
         },
-        product: {
-            type: Object,
+        users: {
+            type: Array,
+            required: true
+        },
+        productList: {
+            type: Array,
             required: true
         }
     },
     data() {
         return {
-            name: this.product.name,
+            name: "",
             errorMessage: '',
-            description: this.product.description,
-            cost: this.product.cost,
+            product: {},
+            description: "",
+            userInventory: {},
+            quantity: 0,
+            arrayItems: [],
         };
-    },
-    watch: {
-        isOpen() {
-            if (!this.isOpen) {
-                this.resetItems();
-            } else {
-                this.name = this.product.name
-                this.description = this.product.description
-                this.cost = this.product.cost
-            }
-        }
     },
     methods: {
         resetItems() {
             this.name = '';
             this.errorMessage = '';
             this.description = '';
-            this.cost = '';
+            this.cost = 0;
         },
         closeModal() {
             this.resetItems();
             this.$emit('close');
         },
-        editOrDelete() {
+        created() {
             this.resetItems();
-            this.$emit('finish');
+            this.$emit('created');
         },
-        async editProduct() {
-            try {
-                const productUpdate = {
-                    name: this.name,
-                    description: this.description,
-                    cost: this.cost
-                }
-                const response = await updateProduct(this.product._id, productUpdate);
-                if (response.status === 200) {
-                    //Show toast
-                    toast.success("Elemento editado correctamente");
-                    this.editOrDelete();
+        addToCart(product, quantity) {
+            if (product && this.userInventory._id) {
+                const existingItem = this.arrayItems.find(item => item.product_id === product._id);
+                if (existingItem) {
+                    existingItem.quantity = quantity;
                 } else {
-                    toast.error(response.message)
-                    this.errorMessage = response.message;
+                    this.arrayItems.push({ name: product.name, product_id: product._id, quantity: quantity, vendor: this.userInventory._id });
                 }
-            } catch (error) {
-                // Handle error response
-                toast.error("Ha ocurrido un error al editar el producto");
-                if (error.response) {
-                    this.errorMessage = error.response.data.message || 'Fallido';
-                } else {
-                    this.errorMessage = 'An error occurred: ' + error.message;
-                }
+            } else {
+                toast.error("Debe seleccionar un usuario y un producto");
             }
         },
-        async deleteProduct() {
+        removeFromCart(product) {
+            const index = this.arrayItems.findIndex(item => item.product_id === product);
+            if (index !== -1) {
+                this.arrayItems.splice(index, 1);
+            }
+        },
+        async create() {
             try {
-                const response = await deleteProduct(this.product._id);
+                const response = await createInventory(this.arrayItems);
                 if (response.status === 200) {
                     //Show toast
-                    toast.success("Elemento eliminado correctamente");
-                    this.editOrDelete();
+                    toast.success("Elemento creado correctamente");
+                    this.created();
                 } else {
                     toast.error(response.message)
                     this.errorMessage = response.message;
                 }
             } catch (error) {
                 // Handle error response
-                toast.error("Ha ocurrido un error al editar el producto");
+                toast.error("Ha ocurrido un error al crear el producto");
                 if (error.response) {
                     this.errorMessage = error.response.data.message || 'Fallido';
                 } else {

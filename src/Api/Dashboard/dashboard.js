@@ -1,6 +1,7 @@
 import axiosInstance from '../axios.js';
 
 const srcOrders = 'orders'
+const srcInventory = 'inventory'
 
 
 async function getOrders(body) {
@@ -73,6 +74,26 @@ async function createProduct(product) {
   }
 }
 
+async function createInventory(inventory) {
+  try {
+    const response = await axiosInstance.post(`${srcInventory}/create_inventory`, {inventory: inventory});
+    return response;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
+}
+
+async function getInventory(vendor) {
+  try {
+    const response = await axiosInstance.post(`${srcInventory}/get_inventory`, {vendor: vendor});
+    return response;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
+}
+
 export {
   getOrders, 
   getOrdersByUser, 
@@ -80,5 +101,7 @@ export {
   getProductList,
   deleteProduct,
   updateProduct,
-  createProduct
+  createProduct,
+  createInventory,
+  getInventory
 };
