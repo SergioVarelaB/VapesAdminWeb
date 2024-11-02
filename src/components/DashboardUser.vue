@@ -6,6 +6,7 @@
         <button @click="currentPage = 'users'">Usarios</button>
         <button @click="currentPage = 'sales'">Ventas</button>
         <button @click="currentPage = 'products'">Productos</button>
+        <button @click="currentPage = 'inventory'">Inventarios</button>
       </nav>
       <div v-if="currentPage === 'users'">
         <div class="header-row">
@@ -38,6 +39,14 @@
           <p class="header-title">Fecha de finalización:</p>
           <input type="date" class="date-input" v-model="selectedDateEnd" id="date" />
         </div>
+        <div class="header-row">
+          <!-- Centered h1 tag -->
+          <h1 class="header-title"></h1>
+          <p class="header-title">Total Efectivo: <strong> ${{ this.totalCash }}</strong> </p>
+          <p class="header-title">Total de Transferencias: <strong>${{ this.totalTransactions }}</strong></p>
+          <p class="header-title">Total: <strong>${{ this.total }}</strong></p>
+          <p class="header-title">Total De Ganancias: <strong>${{ this.totalRevenue }}</strong></p>
+        </div>
         <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
       </div>
 
@@ -48,11 +57,38 @@
           <h1 class="header-title"> Lista de Productos </h1>
           <!-- Button to open the modal, aligned to the right -->
           <button @click="openModalNewProduct" class="open-button"> Crear Nuevo producto + </button>
-          <ModalCreeateProduct :isOpen="isModalnewproductOpen" @created="closeModalNewProduct"  @close="closeModalNewProduct2"/>
+          <ModalCreeateProduct :isOpen="isModalnewproductOpen" @created="closeModalNewProduct"
+            @close="closeModalNewProduct2" />
         </div>
         <TableComponent @update-data="updateOrDeleteProduct" :headers="tableHeadersProduct" :rows="tableRowProducts" />
         <ModelUpdateorDelete @update-data="updateOrDeleteProduct" :product="productEorD"
           :isOpen="isModalUpdateorDeleteOpen" @close="closeUorDProduct" @finish="productDeletedOrUpdated" />
+      </div>
+
+      <div v-if="currentPage === 'inventory'">
+        <div class="header-row">
+          <!-- Centered h1 tag -->
+          <h1 class="header-title"> Inventarios de usuarios </h1>
+
+          <!-- Button to open the modal, aligned to the right -->
+          <button @click="openCreateInventory" class="open-button"> Crear Nuevo Inventario + </button>
+        </div>
+        <div class="header-row">
+          <!-- Centered h1 tag -->
+          <p class="header-title"> Seleccione un usuario: </p>
+          <select class="form-control" style="display: flex;" v-model="userInventory">
+            <option v-for="users in tableRowsUsers" :key="users._id" :value="users">
+              {{ users.email }}
+            </option>
+          </select>
+        </div>
+        <!-- <TableComponent @update-data="updateOrDeleteProduct" :headers="tableHeadersProduct" :rows="tableRowProducts" /> -->
+        <ModalCreateInventory :users="tableRowsUsers" :productList="tableRowProducts"
+          :isOpen="isModalCreateInventoryOpen" @created="inventoryCreated" @close="closeCreateInventory" />
+
+        <TableComponent :headers="tableHeadersUserInventory" :rows="userInventoryRows" />
+        <!-- <ModelUpdateorDelete @update-data="updateOrDeleteProduct" :product="productEorD" -->
+        <!-- :isOpen="isModalUpdateorDeleteOpen" @close="closeUorDProduct" @finish="productDeletedOrUpdated" /> -->
       </div>
 
     </div>
@@ -77,12 +113,13 @@
 <script>
 import TableComponent from './Utils/table.vue';
 import ModalNewSale from './Utils/ModalNewSale.vue';
-import { getOrdersByUser, createSale, getOrders, getProductList } from '../Api/Dashboard/dashboard.js';
+import { getOrdersByUser, createSale, getOrders, getProductList, getInventory } from '../Api/Dashboard/dashboard.js';
 import { getUsers } from '../Api/Users/usersApi.js';
 import ModalCreateUser from './Utils/ModalNewUser.vue'; // Adjust the path based on your folder structure
 import ModalDeleteUsers from './Utils/ModalDeleteUsers.vue';
-import ModelUpdateorDelete from './Utils/ModelUpdateorDelete.vue';
+import ModelUpdateorDelete from './Utils/ModalUpOrDelProd.vue';
 import ModalCreeateProduct from './Utils/ModalCreeateProduct.vue';
+import ModalCreateInventory from './Utils/ModalCreateInventory.vue';
 import { toast } from 'vue3-toastify';
 
 export default {
@@ -92,17 +129,18 @@ export default {
     ModalCreateUser,
     ModalDeleteUsers,
     ModelUpdateorDelete,
-    ModalCreeateProduct
+    ModalCreeateProduct,
+    ModalCreateInventory
   },
   data() {
     return {
-      currentPage: 'users', // Set default page
-      tableHeadersSales: ['Metodo de pago', 'Articulos vendidos', "Efectivo" , 'Transferencia',  'Total', 'Fecha'],
-      tableHeadersSalesAdmin: ['Metodo de pago', 'Articulos vendidos', "desgloce de venta" ,'Total', 'Repartidor'],
+      currentPage: 'inventory', // Set default page
+      tableHeadersSales: ['Metodo de pago', 'Articulos vendidos', "Efectivo", 'Transferencia', 'Total', 'Fecha'],
+      tableHeadersSalesAdmin: ['Metodo de pago', 'Articulos vendidos', "Efectivo", 'Transferencia', 'Total', 'Ganancia', 'Fecha', 'Repartidor'],
       tableRowsSales: [],
       tableHeadersUsers: ['ID', 'Email', 'Nombre', 'Admin', 'Telefono'],
       tableRowsUsers: [],
-      tableHeadersProduct: ['ID', 'Nombre', 'Descripcion'],
+      tableHeadersProduct: ['ID', 'Nombre', 'Descripcion', 'costo'],
       tableRowProducts: [],
       isModalOpen: false,
       user: {},
@@ -114,7 +152,14 @@ export default {
       isModalUpdateorDeleteOpen: false,
       productEorD: {},
       isModalnewproductOpen: false,
-
+      totalCash: 0,
+      totalTransactions: 0,
+      total: 0,
+      totalRevenue: 0,
+      userInventory: "",
+      isModalCreateInventoryOpen: false,
+      tableHeadersUserInventory: ['Cantidad', 'Producto', 'Fecha de asignación'],
+      userInventoryRows: []
     };
   },
   mounted() {
@@ -128,16 +173,44 @@ export default {
     },
     selectedDateEnd() {
       this.validateDates();
+    },
+    userInventory() {
+      // toast.success(`hola!! ${this.userInventory.name}`);
+      //getUser inventory
+      this.loadUserInventory(this.userInventory._id);
     }
   },
   methods: {
     loadUserInfo() {
       if (this.user.isAdmin) {
+        this.tableHeadersSales = this.tableHeadersSalesAdmin;
         this.setInitDates();
         this.getUsersVue();
       }
       this.getProductList()
       this.getAllSales(this.user._id);
+    },
+    async loadUserInventory(user_id) {
+      // user_id
+      try {
+        const response = await getInventory(user_id);
+        if (response.status === 200) {
+          //Show toast
+          this.userInventoryRows = response.data.inventory;
+        } else {
+          toast.error(response.message)
+          this.errorMessage = response.message;
+        }
+      } catch (error) {
+        // Handle error response
+        toast.error("Ha ocurrido un error al cargar el inventario");
+        if (error.response) {
+          this.errorMessage = error.response.data.message || 'Fallido';
+        } else {
+          this.errorMessage = 'An error occurred: ' + error.message;
+        }
+      }
+      // /get_inventory
     },
     openModal() {
       this.isModalOpen = true;
@@ -185,6 +258,17 @@ export default {
       this.isModalOpen = false;
       this.getUsersVue();
     },
+    openCreateInventory() {
+      this.isModalCreateInventoryOpen = true;
+    },
+    closeCreateInventory() {
+      this.isModalCreateInventoryOpen = false;
+    },
+    inventoryCreated() {
+      // get all the new inventories
+      this.isModalCreateInventoryOpen = false;
+      this.loadUserInventory(this.userInventory._id);
+    },
     async getAllSales(user_id) {
       try {
         if (this.user.isAdmin) {
@@ -194,6 +278,10 @@ export default {
           }
           const response = await getOrders(body);
           this.tableRowsSales = response.data.sales;
+          this.totalCash = response.data.totalSalesCash;
+          this.totalTransactions = response.data.totalSalesTranfer;
+          this.total = response.data.totalSales;
+          this.totalRevenue = response.data.totalSalesRevenue;
           return;
         } else {
           const response = await getOrdersByUser(user_id);

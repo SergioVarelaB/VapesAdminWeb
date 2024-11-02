@@ -5,14 +5,37 @@
             <span class="close" @click="closeModal">&times;</span>
             <form @submit.prevent="submitForm">
                 <div class="form-group">
-                    <label for="name">Nombre:</label>
-                    <input type="text" id="name" v-model="name" required class="form-control" />
+                    <label for="name">Usuario asignado:</label>
+                    <select class="form-control" style="display: flex;" v-model="userInventory">
+                        <option v-for="users in users" :key="users._id" :value="users">
+                            {{ users.email }}
+                        </option>
+                    </select>
 
-                    <label for="description">Descripcion:</label>
-                    <input type="text" id="description" v-model="description" required class="form-control" />
+                    <label style="margin-top: 10px;" for="name">Nombre:</label>
 
-                    <label for="description">Costo:</label>
-                    <input type="Number" id="cost" v-model="cost" required class="form-control" min="0" />
+                    <label style="padding: 10px;" for="amount;">Productos a agregar:</label>
+                    <div class="product-list" style="    display: flex; gap: 10px; flex-wrap: nowrap;">
+                        <select class="form-control" style="display: flex;" v-model="selectedOptions">
+                            <option v-for="product in productList" :key="product._id" :value="product">
+                                {{ product.name }}
+                            </option>
+                        </select>
+                        <input type="Number" id="quantity" v-model="quantity" required class="form-control"
+                            style="width: 20%;" min="0" />
+                        <button @click="addToCart(selectedOptions, quantity)" class="btn btn-primary"
+                            style="width: 20%; ">+</button>
+                    </div>
+
+
+                    <!-- Cart Section -->
+                    <div v-if="arrayItems.length > 0">
+                        <div class="cart product-list" v-for="item in arrayItems" :key="item._id">
+                            <p>{{ item.name }} (x{{ item.quantity }})</p>
+                            <button class="btn btn-danger" @click="removeFromCart(item.product_id)">Eliminar</button>
+                        </div>
+                    </div>
+
                 </div>
                 <button @click="create" class="btn btn-primary">Crear Producto</button>
 
@@ -23,7 +46,7 @@
 </template>
 
 <script>
-import { createProduct } from '../../Api/Dashboard/dashboard.js';
+import { createInventory } from '../../Api/Dashboard/dashboard.js';
 import { toast } from 'vue3-toastify';
 export default {
     props: {
@@ -31,21 +54,40 @@ export default {
             type: Boolean,
             required: true
         },
+        users: {
+            type: Array,
+            required: true
+        },
+        productList: {
+            type: Array,
+            required: true
+        }
     },
     data() {
         return {
             name: "",
             errorMessage: '',
+            product: {},
             description: "",
-            cost: 0,
+            userInventory: {},
+            quantity: 0,
+            arrayItems: [],
+            selectedOptions: null,
         };
     },
     methods: {
+        resetProducts() {
+            this.quantity = 0;
+            this.selectedOptions = null;
+        },
         resetItems() {
             this.name = '';
             this.errorMessage = '';
-            this.description = '';
-            this.cost = 0;
+            this.product = {};
+            this.userInventory = {};
+            this.quantity = 0;
+            this.arrayItems = [];
+            this.selectedOptions = null;
         },
         closeModal() {
             this.resetItems();
@@ -55,17 +97,32 @@ export default {
             this.resetItems();
             this.$emit('created');
         },
+        addToCart(product, quantity) {
+            if (product && this.userInventory._id) {
+                const existingItem = this.arrayItems.find(item => item.product_id === product._id);
+                if (existingItem) {
+                    existingItem.quantity = quantity;
+                } else {
+                    this.arrayItems.push({ name: product.name, product_id: product._id, quantity: quantity, vendor: this.userInventory._id });
+                }
+                this.resetProducts();
+            } else {
+                toast.error("Debe seleccionar un usuario y un producto");
+            }
+        },
+        removeFromCart(product) {
+            const index = this.arrayItems.findIndex(item => item.product_id === product);
+            if (index !== -1) {
+                this.arrayItems.splice(index, 1);
+            }
+        },
         async create() {
             try {
-                const productUpdate = {
-                    name: this.name,
-                    description: this.description,
-                    cost: this.cost
-                }
-                const response = await createProduct(productUpdate);
-                if (response.status === 201) {
+                const response = await createInventory(this.arrayItems);
+                if (response.status === 200) {
                     //Show toast
-                    toast.success("Producto creado correctamente");
+                    this.resetItems();
+                    toast.success("Elemento creado correctamente");
                     this.created();
                 } else {
                     toast.error(response.message)

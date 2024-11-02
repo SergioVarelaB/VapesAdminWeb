@@ -17,14 +17,14 @@
         
         <div class="form-group" v-if="(paymentMethod !== 'Mixto') && (paymentMethod !== '')">
           <label for="amount">Cantidad {{ paymentMethod }}:</label>
-          <input type="number" id="amount" v-model="amount" required class="form-control" />
+          <input type="number" id="amount" v-model="amount" required class="form-control" min="0" />
         </div>
 
         <div class="form-group" v-if="(paymentMethod === 'Mixto') && (paymentMethod !== '')">
           <label>Cantidad en Efectivo:</label>
-          <input type="number" id="cash" v-model="cash" required class="form-control" />
+          <input type="number" id="cash" v-model="cash" required class="form-control" min="0" />
           <label style="padding: 10px;" for="amount">Cantidad en Transferencia:</label>
-          <input type="number" id="transfer" v-model="transfer" required class="form-control" />
+          <input type="number" id="transfer" v-model="transfer" required class="form-control" min="0" />
         </div>        
         
         <!-- Product List Section --> 
@@ -157,7 +157,6 @@ export default {
           }
         } catch (error) {
           // Handle error response
-          toast.error("Ha ocurrido un error al crear el usuario");
           if (error.response) {
             this.errorMessage = error.response.data.message || 'Fallido';
           } else {
@@ -168,6 +167,13 @@ export default {
     },
     validateForm() {
       if (this.arrayItems.length === 0 || this.paymentMethod === '' || (this.paymentMethod === 'Mixto' && (this.cash === 0 || this.transfer === 0)) || (this.paymentMethod !== 'Mixto' && this.amount === 0)) {
+        if(this.cash < 0 || this.transfer < 0 || this.amount < 0){
+          this.errorMessage = "El monto no puede ser negativo";
+          this.cash = 0;
+          this.transfer = 0;
+          this.amount = 0;  
+          return false;
+        }
         this.errorMessage = "Todos los campos son requeridos";
         return false;
       }
