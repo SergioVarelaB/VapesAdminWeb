@@ -72,14 +72,22 @@ export default {
             userInventory: {},
             quantity: 0,
             arrayItems: [],
+            selectedOptions: null,
         };
     },
     methods: {
+        resetProducts() {
+            this.quantity = 0;
+            this.selectedOptions = null;
+        },
         resetItems() {
             this.name = '';
             this.errorMessage = '';
-            this.description = '';
-            this.cost = 0;
+            this.product = {};
+            this.userInventory = {};
+            this.quantity = 0;
+            this.arrayItems = [];
+            this.selectedOptions = null;
         },
         closeModal() {
             this.resetItems();
@@ -97,6 +105,7 @@ export default {
                 } else {
                     this.arrayItems.push({ name: product.name, product_id: product._id, quantity: quantity, vendor: this.userInventory._id });
                 }
+                this.resetProducts();
             } else {
                 toast.error("Debe seleccionar un usuario y un producto");
             }
@@ -112,6 +121,7 @@ export default {
                 const response = await createInventory(this.arrayItems);
                 if (response.status === 200) {
                     //Show toast
+                    this.resetItems();
                     toast.success("Elemento creado correctamente");
                     this.created();
                 } else {

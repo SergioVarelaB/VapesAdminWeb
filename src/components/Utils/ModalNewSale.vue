@@ -157,7 +157,6 @@ export default {
           }
         } catch (error) {
           // Handle error response
-          toast.error("Ha ocurrido un error al crear el usuario");
           if (error.response) {
             this.errorMessage = error.response.data.message || 'Fallido';
           } else {

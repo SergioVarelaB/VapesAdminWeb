@@ -192,7 +192,6 @@ export default {
     },
     async loadUserInventory(user_id) {
       // user_id
-      toast.success(`hola!! ${user_id}`);
       try {
         const response = await getInventory(user_id);
         if (response.status === 200) {
@@ -204,7 +203,7 @@ export default {
         }
       } catch (error) {
         // Handle error response
-        toast.error("Ha ocurrido un error al crear el producto");
+        toast.error("Ha ocurrido un error al cargar el inventario");
         if (error.response) {
           this.errorMessage = error.response.data.message || 'Fallido';
         } else {
@@ -268,6 +267,7 @@ export default {
     inventoryCreated() {
       // get all the new inventories
       this.isModalCreateInventoryOpen = false;
+      this.loadUserInventory(this.userInventory._id);
     },
     async getAllSales(user_id) {
       try {
