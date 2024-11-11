@@ -3,12 +3,12 @@
     <div v-if="user.isAdmin">
       <h1 class="header-title"> Hola {{ user.name }}!! </h1>
       <nav v-if="user.isAdmin">
-        <button @click="currentPage = 'users'">Usarios</button>
-        <button @click="currentPage = 'sales'">Ventas</button>
-        <button @click="currentPage = 'products'">Productos</button>
-        <button @click="currentPage = 'inventory'">Inventarios</button>
+        <button :class="{ active: currentPageAdmin == 'users'}" @click="currentPageAdmin = 'users'">Usarios</button>
+        <button :class="{ active: currentPageAdmin == 'sales'}" @click="currentPageAdmin = 'sales'">Ventas</button>
+        <button :class="{ active: currentPageAdmin == 'products'}" @click="currentPageAdmin = 'products'">Productos</button>
+        <button :class="{ active: currentPageAdmin == 'inventory'}" @click="currentPageAdmin = 'inventory'">Inventarios</button>
       </nav>
-      <div v-if="currentPage === 'users'">
+      <div v-if="currentPageAdmin === 'users'">
         <div class="header-row">
           <!-- Centered h1 tag -->
           <h1 class="header-title"> Lista de Repartidores </h1>
@@ -24,7 +24,7 @@
       </div>
 
 
-      <div v-if="currentPage === 'sales'">
+      <div v-if="currentPageAdmin === 'sales'">
         <div class="header-row">
           <!-- Centered h1 tag -->
           <h1 class="header-title">Lista de ventas</h1>
@@ -34,6 +34,12 @@
         <div class="header-row">
           <!-- Centered h1 tag -->
           <h1 class="header-title"></h1>
+          <p class="header-title"> Seleccione un usuario: </p>
+          <select class="form-control" v-model="userSales" style="width: 40%;">
+            <option v-for="users in usersList" :key="users._id" :value="users">
+              {{ users.email }}
+            </option>
+          </select>
           <p class="header-title">Fecha de inicio:</p>
           <input type="date" class="date-input" v-model="selectedDateStart" id="date" />
           <p class="header-title">Fecha de finalización:</p>
@@ -51,7 +57,7 @@
       </div>
 
 
-      <div v-if="currentPage === 'products'">
+      <div v-if="currentPageAdmin === 'products'">
         <div class="header-row">
           <!-- Centered h1 tag -->
           <h1 class="header-title"> Lista de Productos </h1>
@@ -65,7 +71,7 @@
           :isOpen="isModalUpdateorDeleteOpen" @close="closeUorDProduct" @finish="productDeletedOrUpdated" />
       </div>
 
-      <div v-if="currentPage === 'inventory'">
+      <div v-if="currentPageAdmin === 'inventory'">
         <div class="header-row">
           <!-- Centered h1 tag -->
           <h1 class="header-title"> Inventarios de usuarios </h1>
@@ -77,33 +83,47 @@
           <!-- Centered h1 tag -->
           <p class="header-title"> Seleccione un usuario: </p>
           <select class="form-control" style="display: flex;" v-model="userInventory">
-            <option v-for="users in tableRowsUsers" :key="users._id" :value="users">
+            <option v-for="users in usersList" :key="users._id" :value="users">
               {{ users.email }}
             </option>
           </select>
         </div>
         <!-- <TableComponent @update-data="updateOrDeleteProduct" :headers="tableHeadersProduct" :rows="tableRowProducts" /> -->
-        <ModalCreateInventory :users="tableRowsUsers" :productList="tableRowProducts"
+        <ModalCreateInventory :users="usersList" :productList="tableRowProducts"
           :isOpen="isModalCreateInventoryOpen" @created="inventoryCreated" @close="closeCreateInventory" />
 
         <TableComponent :headers="tableHeadersUserInventory" :rows="userInventoryRows" />
         <!-- <ModelUpdateorDelete @update-data="updateOrDeleteProduct" :product="productEorD" -->
         <!-- :isOpen="isModalUpdateorDeleteOpen" @close="closeUorDProduct" @finish="productDeletedOrUpdated" /> -->
+        <!-- Button to open the modal, aligned to the right -->
+        <button style="margin-top: 2%;" @click="deleteInventory" class="btn-danger"> Eliminar inventario </button>
       </div>
-
     </div>
 
 
     <div v-else>
-      <div class="header-row">
-        <!-- Centered h1 tag -->
-        <h1 class="header-title"> Lista de ultimas ventas de {{ user.name }}</h1>
-        <!-- Button to open the modal, aligned to the right -->
-        <button @click="openModal" class="open-button"> Crear Nueva venta + </button>
-      </div>
-      <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
-      <ModalNewSale :user=user._id :isOpen="isModalOpen" :productList=tableRowProducts @close="closeModal"
+      <nav v-if="!user.isAdmin">
+        <button :class="{ active: currentPage == 'sales'}" @click="currentPage = 'sales'">Ventas</button>
+        <button :class="{ active: currentPage == 'inventory'}" @click="currentPage = 'inventory'">Inventario</button>
+      </nav>
+      
+
+      <div v-if="currentPage === 'sales'">
+        <div class="header-row">
+          <!-- Centered h1 tag -->
+          <h1 class="header-title"> Lista de ultimas ventas de {{ user.name }}</h1>
+          <!-- Button to open the modal, aligned to the right -->
+          <button @click="openModal" class="open-button"> Crear Nueva venta + </button>
+        </div>
+        <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
+        <ModalNewSale :user=user._id :isOpen="isModalOpen" :productList=tableRowProducts @close="closeModal"
         @created="salesCreated" />
+      </div>
+
+      <div v-if="currentPage === 'inventory'">
+        <TableComponent :headers="tableHeadersUserInventory" :rows="userInventoryRows" />
+      </div>
+      
     </div>
 
 
@@ -113,7 +133,7 @@
 <script>
 import TableComponent from './Utils/table.vue';
 import ModalNewSale from './Utils/ModalNewSale.vue';
-import { getOrdersByUser, createSale, getOrders, getProductList, getInventory } from '../Api/Dashboard/dashboard.js';
+import { getOrdersByUser, createSale, getOrders, getProductList, getInventory, deleteUserInventory } from '../Api/Dashboard/dashboard.js';
 import { getUsers } from '../Api/Users/usersApi.js';
 import ModalCreateUser from './Utils/ModalNewUser.vue'; // Adjust the path based on your folder structure
 import ModalDeleteUsers from './Utils/ModalDeleteUsers.vue';
@@ -134,7 +154,8 @@ export default {
   },
   data() {
     return {
-      currentPage: 'inventory', // Set default page
+      currentPageAdmin: 'users', // Set default page
+      currentPage: 'sales',
       tableHeadersSales: ['Metodo de pago', 'Articulos vendidos', "Efectivo", 'Transferencia', 'Total', 'Fecha'],
       tableHeadersSalesAdmin: ['Metodo de pago', 'Articulos vendidos', "Efectivo", 'Transferencia', 'Total', 'Ganancia', 'Fecha', 'Repartidor'],
       tableRowsSales: [],
@@ -159,7 +180,8 @@ export default {
       userInventory: "",
       isModalCreateInventoryOpen: false,
       tableHeadersUserInventory: ['Cantidad', 'Producto', 'Fecha de asignación'],
-      userInventoryRows: []
+      userInventoryRows: [],
+      usersList: [],
     };
   },
   mounted() {
@@ -186,9 +208,11 @@ export default {
         this.tableHeadersSales = this.tableHeadersSalesAdmin;
         this.setInitDates();
         this.getUsersVue();
+      }else{
+        this.loadUserInventory(this.user._id);
+        this.getAllSales(this.user._id);
       }
       this.getProductList()
-      this.getAllSales(this.user._id);
     },
     async loadUserInventory(user_id) {
       // user_id
@@ -211,6 +235,33 @@ export default {
         }
       }
       // /get_inventory
+    },
+    async deleteInventory() {
+      console.log(this.userInventory._id);
+      const user_id = this.userInventory._id;
+      try {
+        if (user_id) {
+          const response = await deleteUserInventory(user_id);
+          if (response.status === 200) {
+            //Show toast
+            toast.success("Inventario eliminado correctamente");
+            this.loadUserInventory(user_id);
+          } else {
+            toast.error(response.message)
+            this.errorMessage = response.message;
+          }
+        } else {
+          toast.error("No se ha seleccionado un usuario");
+        }
+      } catch (error) {
+        // Handle error response
+        toast.error("Ha ocurrido un error al cargar el inventario");
+        if (error.response) {
+          this.errorMessage = error.response.data.message || 'Fallido';
+        } else {
+          this.errorMessage = 'An error occurred: ' + error.message;
+        }
+      }
     },
     openModal() {
       this.isModalOpen = true;
@@ -237,6 +288,7 @@ export default {
     },
     salesCreated() {
       this.isModalOpen = false;
+      this.loadUserInventory(this.user._id);
       this.getAllSales(this.user._id);
     },
     deleteUser(row_id) {
@@ -316,6 +368,9 @@ export default {
       try {
         const response = await getUsers();
         this.tableRowsUsers = response.data.data;
+
+        this.usersList = response.data.data.filter(user => !user.isAdmin);
+
       } catch (error) {
         // Handle error response
         toast.error(error.response);
@@ -449,6 +504,14 @@ export default {
 }
 
 
+.btn-danger {
+  background-color: #e6441c;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
 nav {
   display: flex;
   padding: 10px;
@@ -465,9 +528,21 @@ button {
   border-radius: 4px;
 }
 
-button:hover {
-  background-color: #0056b3;
+.active {
+  background-color: aliceblue;
+  color: black;
+  padding: 10px;
+  cursor: pointer;
+  background-color: #ffffff;
+  color: rgb(0, 0, 0);
+  border: 1px solid #007bff;
+  border-radius: 4px;
 }
+
+
+/* button:hover {
+  background-color: #0056b3;
+} */
 
 /* Opcional: Ajusta las celdas en pantallas pequeñas */
 @media screen and (max-width: 768px) {

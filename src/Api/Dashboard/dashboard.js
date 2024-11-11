@@ -94,6 +94,17 @@ async function getInventory(vendor) {
   }
 }
 
+
+async function deleteUserInventory(vendor) {
+  try {
+    const response = await axiosInstance.post(`${srcInventory}/delete_inventory`, {vendor: vendor});
+    return response;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
+}
+
 export {
   getOrders, 
   getOrdersByUser, 
@@ -103,5 +114,6 @@ export {
   updateProduct,
   createProduct,
   createInventory,
-  getInventory
+  getInventory,
+  deleteUserInventory
 };
