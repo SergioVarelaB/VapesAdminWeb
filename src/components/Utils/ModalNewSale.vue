@@ -117,11 +117,16 @@ export default {
     },
     addToCart(product) {
       if (product) {
-        const existingItem = this.arrayItems.find(item => item._id === product._id);
-        if (existingItem) {
-          existingItem.quantity++;
-        } else {
-          this.arrayItems.push({ name: product.name, _id: product._id, quantity: 1 });
+        ///agregar validacion para que solo pueda agregar un bulk o varios items
+        if((this.arrayItems.length > 0 && product.isBulk) || (this.arrayItems.length > 0 && this.arrayItems[0].isBulk)){
+          toast.error("no puedes hacer varias ventas con productos de mayoreo")
+        }else{
+          const existingItem = this.arrayItems.find(item => item._id === product._id);
+          if (existingItem) {
+            existingItem.quantity++;
+          } else {
+            this.arrayItems.push({ name: product.name, _id: product._id, quantity: 1, isBulk: product.isBulk });
+          }
         }
       }
     },

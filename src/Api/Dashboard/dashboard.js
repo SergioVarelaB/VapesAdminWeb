@@ -16,7 +16,7 @@ async function getOrders(body) {
 
 async function getOrdersByUser(user_id) {
   try {
-    const response = await axiosInstance.post(`${srcOrders}/get_sales_by_user`, { user: user_id});
+    const response = await axiosInstance.post(`${srcOrders}/get_sales_by_user`, { vendor: user_id});
     return response;
   } catch (error) {
     console.error('Error fetching orders:', error);
