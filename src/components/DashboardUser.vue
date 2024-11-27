@@ -36,7 +36,7 @@
           <h1 class="header-title"></h1>
           <p class="header-title"> Seleccione un usuario: </p>
           <select class="form-control" v-model="userSales" style="width: 40%;">
-            <option v-for="users in usersList" :key="users._id" :value="users">
+            <option v-for="users in userSalesFilters" :key="users._id" :value="users">
               {{ users.email }}
             </option>
           </select>
@@ -116,7 +116,7 @@
           <button @click="openModal" class="open-button"> Crear Nueva venta + </button>
         </div>
         <TableComponent :headers="tableHeadersSales" :rows="tableRowsSales" />
-        <ModalNewSale :user=user._id :isOpen="isModalOpen" :productList=tableRowProducts @close="closeModal"
+        <ModalNewSale :user=user._id :isOpen="isModalOpen" :productList=userInventoryProducts @close="closeModal"
         @created="salesCreated" />
       </div>
 
@@ -170,6 +170,7 @@ export default {
       idUserDelete: "",
       selectedDateStart: this.formatDate(new Date()),
       selectedDateEnd: null,
+      userSales:null,
       isModalUpdateorDeleteOpen: false,
       productEorD: {},
       isModalnewproductOpen: false,
@@ -181,7 +182,9 @@ export default {
       isModalCreateInventoryOpen: false,
       tableHeadersUserInventory: ['Cantidad', 'Producto', 'Fecha de asignación'],
       userInventoryRows: [],
+      userInventoryProducts: [],
       usersList: [],
+      userSalesFilters: []
     };
   },
   mounted() {
@@ -195,6 +198,10 @@ export default {
     },
     selectedDateEnd() {
       this.validateDates();
+    },
+    userSales() {
+      console.log(this.userSales._id);
+      this.getAllSales(this.userSales._id);
     },
     userInventory() {
       // toast.success(`hola!! ${this.userInventory.name}`);
@@ -220,7 +227,12 @@ export default {
         const response = await getInventory(user_id);
         if (response.status === 200) {
           //Show toast
-          this.userInventoryRows = response.data.inventory;
+          this.userInventoryRows = response.data.inventory.map(item => ({
+            quantity: item.quantity,
+            product: item.name,
+            date: item.date
+          }));
+          this.userInventoryProducts = response.data.inventory;
         } else {
           toast.error(response.message)
           this.errorMessage = response.message;
@@ -326,8 +338,9 @@ export default {
         if (this.user.isAdmin) {
           const body = {
             startDate: this.selectedDateStart,
-            endDate: this.selectedDateEnd
+            endDate: this.selectedDateEnd,
           }
+          if(user_id) body.vendor = user_id;
           const response = await getOrders(body);
           this.tableRowsSales = response.data.sales;
           this.totalCash = response.data.totalSalesCash;
@@ -371,6 +384,13 @@ export default {
 
         this.usersList = response.data.data.filter(user => !user.isAdmin);
 
+        this.userSalesFilters = [...this.usersList]
+        this.userSalesFilters.push({
+          "_id":null,
+          "name": "Todos",
+          "email": "Todos"
+        })
+
       } catch (error) {
         // Handle error response
         toast.error(error.response);
@@ -396,7 +416,18 @@ export default {
     },
     downloadCSV() {
       // Convert JSON to CSV
-      const csvData = this.convertJSONToCSV(this.tableRowsSales);
+
+      const csv = [ ...this.tableRowsSales ];
+      const newRow = {
+        paymentMethod: "",
+        items: "",
+        cash: "$" + this.totalCash + ".00",
+        transactions: "$" + this.totalTransactions + ".00",
+        total: "$" + this.total + ".00",
+        revenue: "$" + this.totalRevenue + ".00"
+      }
+      csv.push(newRow);
+      const csvData = this.convertJSONToCSV(csv);
 
       // Create a Blob with the CSV data
       const blob = new Blob([csvData], { type: 'text/csv' });

@@ -12,7 +12,25 @@
                         </option>
                     </select>
 
-                    <label style="margin-top: 10px;" for="name">Nombre:</label>
+                    <div class="product-list" style=" display: flex; gap: 10px; flex-wrap: nowrap;">
+                        <p>Crear un paquete de mayoreo?</p>
+                        <label class="toggle-switch">
+                            <input type="checkbox" v-model="CreateBulk" />
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div v-if="CreateBulk">
+
+                        <form @submit.prevent="submitForm">
+                            <div class="form-group">
+                                <label for="name">Nombre:</label>
+                                <input type="text" id="name" v-model="bulkName" required class="form-control" />
+                            </div>
+                            <button @click="addToCart({name: bulkName,_id: 0}, '1', true)" class="btn btn-primary"> Agregar Producto</button>
+                        </form>
+
+                    </div>
 
                     <label style="padding: 10px;" for="amount;">Productos a agregar:</label>
                     <div class="product-list" style="    display: flex; gap: 10px; flex-wrap: nowrap;">
@@ -23,7 +41,7 @@
                         </select>
                         <input type="Number" id="quantity" v-model="quantity" required class="form-control"
                             style="width: 20%;" min="0" />
-                        <button @click="addToCart(selectedOptions, quantity)" class="btn btn-primary"
+                        <button @click="addToCart(selectedOptions, quantity, false)" class="btn btn-primary"
                             style="width: 20%; ">+</button>
                     </div>
 
@@ -66,6 +84,7 @@ export default {
     data() {
         return {
             name: "",
+            bulkName: "",
             errorMessage: '',
             product: {},
             description: "",
@@ -73,6 +92,7 @@ export default {
             quantity: 0,
             arrayItems: [],
             selectedOptions: null,
+            CreateBulk: false
         };
     },
     methods: {
@@ -82,6 +102,7 @@ export default {
         },
         resetItems() {
             this.name = '';
+            this.bulkName = "";
             this.errorMessage = '';
             this.product = {};
             this.userInventory = {};
@@ -97,13 +118,13 @@ export default {
             this.resetItems();
             this.$emit('created');
         },
-        addToCart(product, quantity) {
+        addToCart(product, quantity, isbulk) {
             if (product && this.userInventory._id) {
                 const existingItem = this.arrayItems.find(item => item.product_id === product._id);
                 if (existingItem) {
                     existingItem.quantity = quantity;
                 } else {
-                    this.arrayItems.push({ name: product.name, product_id: product._id, quantity: quantity, vendor: this.userInventory._id });
+                    this.arrayItems.push({ name: product.name, product_id: product._id, quantity: quantity, vendor: this.userInventory._id , isBulk: isbulk });
                 }
                 this.resetProducts();
             } else {
@@ -267,4 +288,51 @@ input {
 .cart {
     margin-top: 10px;
 }
+
+/* Basic styling for the toggle switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196f3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
 </style>
