@@ -204,7 +204,6 @@ export default {
       this.getAllSales(this.userSales._id);
     },
     userInventory() {
-      // toast.success(`hola!! ${this.userInventory.name}`);
       //getUser inventory
       this.loadUserInventory(this.userInventory._id);
     }
@@ -480,7 +479,7 @@ export default {
         toast.error("La fecha de inicio debe ser anterior a la fecha de finalización");
         this.setInitDates();
       } else {
-        this.getAllSales(this.user._id);
+        this.getAllSales(this.userInventory._id? this.userInventory._id : null);
       }
     }
   },
