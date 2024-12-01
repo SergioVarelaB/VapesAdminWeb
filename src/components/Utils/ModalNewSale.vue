@@ -1,7 +1,7 @@
 <!-- Modal.vue -->
 <template>
   <div v-if="isOpen" class="modal">
-    <div class="modal-content">
+    <div class="modal-content scrollable-container">
       <span class="close" @click="closeModal">&times;</span>
       <form @submit.prevent="submitForm">
 
@@ -199,6 +199,11 @@ export default {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
+}
+
+.scrollable-container {
+  max-height: 60%;
+  overflow-y: auto; /* Enables vertical scrolling */
 }
 
 .modal-content {
