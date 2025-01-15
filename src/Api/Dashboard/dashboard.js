@@ -105,6 +105,16 @@ async function deleteUserInventory(vendor) {
   }
 }
 
+async function modyfyInventory(body) {
+  try {
+    const response = await axiosInstance.post(`${srcInventory}/modyfy_inventory`, body);
+    return response;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
+}
+
 export {
   getOrders, 
   getOrdersByUser, 
@@ -115,5 +125,6 @@ export {
   createProduct,
   createInventory,
   getInventory,
-  deleteUserInventory
+  deleteUserInventory,
+  modyfyInventory
 };

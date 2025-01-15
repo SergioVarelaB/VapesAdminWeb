@@ -67,7 +67,7 @@ export default {
             }
         },
         modalDelete(index) {
-            this.$emit('update-data', index._id);
+            this.$emit('update-data', index);
         }
     }
 };

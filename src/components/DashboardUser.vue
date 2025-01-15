@@ -91,8 +91,9 @@
         <!-- <TableComponent @update-data="updateOrDeleteProduct" :headers="tableHeadersProduct" :rows="tableRowProducts" /> -->
         <ModalCreateInventory :users="usersList" :productList="tableRowProducts"
           :isOpen="isModalCreateInventoryOpen" @created="inventoryCreated" @close="closeCreateInventory" />
-
-        <TableComponent :headers="tableHeadersUserInventory" :rows="userInventoryRows" />
+        <ModalModyfyInventory :repartidor="userInventory" :product="productInventory"
+            @update-data="modyfyInventory" :isOpen="isModalModifyInventoryOpen" @close="closeInventory" />
+        <TableComponent  @update-data="updateInventoryQty" :headers="tableHeadersUserInventory" :rows="userInventoryRows" />
         <!-- <ModelUpdateorDelete @update-data="updateOrDeleteProduct" :product="productEorD" -->
         <!-- :isOpen="isModalUpdateorDeleteOpen" @close="closeUorDProduct" @finish="productDeletedOrUpdated" /> -->
         <!-- Button to open the modal, aligned to the right -->
@@ -133,13 +134,14 @@
 <script>
 import TableComponent from './Utils/table.vue';
 import ModalNewSale from './Utils/ModalNewSale.vue';
-import { getOrdersByUser, createSale, getOrders, getProductList, getInventory, deleteUserInventory } from '../Api/Dashboard/dashboard.js';
+import { modyfyInventory, getOrdersByUser, createSale, getOrders, getProductList, getInventory, deleteUserInventory } from '../Api/Dashboard/dashboard.js';
 import { getUsers } from '../Api/Users/usersApi.js';
 import ModalCreateUser from './Utils/ModalNewUser.vue'; // Adjust the path based on your folder structure
 import ModalDeleteUsers from './Utils/ModalDeleteUsers.vue';
 import ModelUpdateorDelete from './Utils/ModalUpOrDelProd.vue';
 import ModalCreeateProduct from './Utils/ModalCreeateProduct.vue';
 import ModalCreateInventory from './Utils/ModalCreateInventory.vue';
+import ModalModyfyInventory from './Utils/ModalModyfyInventory.vue';
 import { toast } from 'vue3-toastify';
 
 export default {
@@ -150,7 +152,8 @@ export default {
     ModalDeleteUsers,
     ModelUpdateorDelete,
     ModalCreeateProduct,
-    ModalCreateInventory
+    ModalCreateInventory,
+    ModalModyfyInventory
   },
   data() {
     return {
@@ -164,10 +167,12 @@ export default {
       tableHeadersProduct: ['ID', 'Nombre', 'Descripcion', 'costo'],
       tableRowProducts: [],
       isModalOpen: false,
-      user: {},
+      user: {_id:""},
       errorMessage: '',
       isModalDeleteUsersOpen: false,
       idUserDelete: "",
+      isModalModifyInventoryOpen: false,
+      productInventory: {},
       selectedDateStart: this.formatDate(new Date()),
       selectedDateEnd: null,
       userSales:null,
@@ -178,7 +183,7 @@ export default {
       totalTransactions: 0,
       total: 0,
       totalRevenue: 0,
-      userInventory: "",
+      userInventory: {},
       isModalCreateInventoryOpen: false,
       tableHeadersUserInventory: ['Cantidad', 'Producto', 'Fecha de asignación'],
       userInventoryRows: [],
@@ -200,7 +205,6 @@ export default {
       this.validateDates();
     },
     userSales() {
-      console.log(this.userSales._id);
       this.getAllSales(this.userSales._id);
     },
     userInventory() {
@@ -248,7 +252,6 @@ export default {
       // /get_inventory
     },
     async deleteInventory() {
-      console.log(this.userInventory._id);
       const user_id = this.userInventory._id;
       try {
         if (user_id) {
@@ -304,11 +307,21 @@ export default {
     },
     deleteUser(row_id) {
       this.isModalDeleteUsersOpen = true;
-      this.idUserDelete = row_id;
+      this.idUserDelete = row_id._id;
     },
     updateOrDeleteProduct(product) {
-      this.productEorD = this.tableRowProducts.find(item => item._id === product);
+      this.productEorD = this.tableRowProducts.find(item => item._id === product._id);
       this.isModalUpdateorDeleteOpen = true;
+    },
+    updateInventoryQty(product) {
+      this.productInventory = product;
+      this.isModalModifyInventoryOpen = true;
+    },
+    openDeleteModal() {
+      this.isModalDeleteUsersOpen = true;
+    },
+    closeInventory() {
+      this.isModalModifyInventoryOpen = false;
     },
     closeDeleteModal() {
       this.isModalDeleteUsersOpen = false;
@@ -480,6 +493,26 @@ export default {
         this.setInitDates();
       } else {
         this.getAllSales(this.userInventory._id? this.userInventory._id : null);
+      }
+    },
+    async modyfyInventory(body) { 
+      try {
+        const response = await modyfyInventory(body);
+        if (response.status === 200) {
+            //Show toast
+            toast.success("Inventario actualizado correctamente");
+            this.loadUserInventory(this.userInventory._id);
+          } else {
+            toast.error(response.message)
+            this.errorMessage = response.message;
+          }
+      } catch (error) {
+        // Handle error response
+        if (error.response) {
+          this.errorMessage = error.response.data.message || 'Fallido';
+        } else {
+          this.errorMessage = 'An error occurred: ' + error.message;
+        }
       }
     }
   },
