@@ -27,7 +27,7 @@
                                 <label for="name">Nombre:</label>
                                 <input type="text" id="name" v-model="bulkName" required class="form-control" />
                             </div>
-                            <button @click="addToCart({name: bulkName,_id: 0}, '1', true)" class="btn btn-primary"> Agregar Producto</button>
+                            <button @click="addToCart({name: bulkName,_id: bulkItems}, '1', true)" class="btn btn-primary"> Agregar Producto</button>
                         </form>
 
                     </div>
@@ -85,6 +85,7 @@ export default {
         return {
             name: "",
             bulkName: "",
+            bulkItems: 0,
             errorMessage: '',
             product: {},
             description: "",
@@ -103,6 +104,7 @@ export default {
         resetItems() {
             this.name = '';
             this.bulkName = "";
+            this.bulkItems = 0;
             this.errorMessage = '';
             this.product = {};
             this.userInventory = {};
@@ -119,7 +121,13 @@ export default {
             this.$emit('created');
         },
         addToCart(product, quantity, isbulk) {
+            console.log(product)
             if (product && this.userInventory._id) {
+                if(isbulk){
+                    this.bulkName = "";
+                    this.CreateBulk = false;
+                    this.bulkItems+=1;
+                }
                 const existingItem = this.arrayItems.find(item => item.product_id === product._id);
                 if (existingItem) {
                     existingItem.quantity = quantity;

@@ -55,6 +55,11 @@ export default {
             return this.rows.slice(start, end);
         },
     },
+    watch: {
+        totalPages() {
+            this.currentPage = 1;
+        }
+    },
     methods: {
         nextPage() {
             if (this.currentPage < this.totalPages) {
