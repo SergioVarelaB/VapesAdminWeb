@@ -8,7 +8,7 @@
                 <p>Nombre del producto: {{ product.product }}</p>
                 <div class="product-list">
 
-                    <input type="number" id="productUpdateQuantity" v-model="productUpdateQuantity" required class="form-control" min="0" @input="if (productUpdateQuantity < 0) productUpdateQuantity = 0" />
+                    <input type="number" id="productUpdateQuantity" v-model="productUpdateQuantity" required class="form-control" min="0" />
 
                 </div>
 
@@ -58,13 +58,18 @@ export default {
             this.productUpdateQuantity--;
         },
         submitForm() {
-            const body = {
-                vendor : this.repartidor._id,
-                name : this.product.product,
-                quantity : this.productUpdateQuantity
+            if (this.productUpdateQuantity < 0) {
+                alert("La cantidad no puede ser negativa");
+                return;
+            }else{
+                const body = {
+                    vendor : this.repartidor._id,
+                    name : this.product.product,
+                    quantity : this.productUpdateQuantity
+                }
+                this.$emit('update-data', body);
+                this.closeModal();
             }
-            this.$emit('update-data', body);
-            this.closeModal();
         }
     }
 };
