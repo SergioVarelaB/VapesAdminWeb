@@ -8,9 +8,7 @@
                 <p>Nombre del producto: {{ product.product }}</p>
                 <div class="product-list">
 
-                    <button class="btn btn-danger" type="button" @click="minusOne()" >-1</button>
-                    <p> {{ productUpdateQuantity }} </p>
-                    <button class="btn btn-primary" type="button" @click="plusOne()" >+1</button>
+                    <input type="number" id="productUpdateQuantity" v-model="productUpdateQuantity" required class="form-control" min="0" @input="if (productUpdateQuantity < 0) productUpdateQuantity = 0" />
 
                 </div>
 
